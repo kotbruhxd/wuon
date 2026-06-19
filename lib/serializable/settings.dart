@@ -5,7 +5,12 @@ import "package:json_annotation/json_annotation.dart";
 
 part "settings.g.dart";
 
-@JsonSerializable(nullable: false)
+String _settingsPath() {
+  final home = Platform.environment["HOME"] ?? ".";
+  return "$home/.config/wuon/settings.json";
+}
+
+@JsonSerializable()
 class MuonSettings {
   MuonSettings();
 
@@ -15,38 +20,24 @@ class MuonSettings {
   factory MuonSettings.fromJson(Map<String, dynamic> json) => _$MuonSettingsFromJson(json);
   Map<String, dynamic> toJson() => _$MuonSettingsToJson(this);
 
-  static MuonSettings loadFromFile([String settingsFile = "muon_settings.json"]) {
-    if(File(settingsFile).existsSync()) {
-      final file = new File(settingsFile);
+  static MuonSettings? loadFromFile([String settingsFile = ""]) {
+    final path = settingsFile.isEmpty ? _settingsPath() : settingsFile;
+    final file = File(path);
+    if (!file.existsSync()) return null;
 
-      if(file.existsSync()) {
-        var fileContents = file.readAsStringSync();
-
-        final jsonData = jsonDecode(fileContents);
-        MuonSettings settings = MuonSettings.fromJson(jsonData);
-
-        return settings;
-      }
-    }
-
-    return null;
+    final fileContents = file.readAsStringSync();
+    final jsonData = jsonDecode(fileContents);
+    return MuonSettings.fromJson(jsonData as Map<String, dynamic>);
   }
 
-  void save([String settingsFile = "muon_settings.json"]) {
-    final jsonContents = this.toJson();
-    String fileContents = jsonEncode(jsonContents);
-
-    final file = new File(settingsFile);
-    file.writeAsStringSync(fileContents);
+  void save([String settingsFile = ""]) {
+    final path = settingsFile.isEmpty ? _settingsPath() : settingsFile;
+    final file = File(path);
+    file.parent.createSync(recursive: true);
+    file.writeAsStringSync(jsonEncode(toJson()));
   }
 }
 
 MuonSettings getMuonSettings() {
-  var settings = MuonSettings.loadFromFile();
-
-  if(settings == null) {
-    return MuonSettings();
-  }
-
-  return settings;
+  return MuonSettings.loadFromFile() ?? MuonSettings();
 }

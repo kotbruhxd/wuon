@@ -2,18 +2,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:muon/editor.dart';
+import 'package:wuon/editor.dart';
 
 class MuonWelcomeDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AlertDialog(
-        title: Center(child: Text("Welcome to Muon!")),
+        title: Center(child: Text("Welcome to wuon!")),
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 child: Text("Create New Project"),
                 onPressed: () async {
                   final suc = await MuonEditor.createNewProject();
@@ -23,7 +23,7 @@ class MuonWelcomeDialog extends StatelessWidget {
                 }
               ),
               SizedBox(height: 10),
-              RaisedButton(
+              ElevatedButton(
                 child: Text("Open Project"),
                 onPressed: () async {
                   final suc = await MuonEditor.openProject(context);
@@ -42,12 +42,12 @@ class MuonWelcomeDialog extends StatelessWidget {
               showAboutDialog(
                 context: context,
                 applicationVersion: "0.0.4",
-                applicationName: "Muon",
+                applicationName: "wuon",
                 applicationLegalese: "copyright (c) swadical 2021",
               );
             },
           ),
-          OutlineButton(
+          OutlinedButton(
             child: Text("Quit"),
             onPressed: () {
               exit(0);

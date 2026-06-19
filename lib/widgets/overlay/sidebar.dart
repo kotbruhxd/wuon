@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:muon/widgets/overlay/actionsmenu.dart';
-import 'package:muon/widgets/overlay/projectmetadatamenu.dart';
-import 'package:muon/widgets/overlay/voicesmenu.dart';
+import 'package:wuon/widgets/overlay/actionsmenu.dart';
+import 'package:wuon/widgets/overlay/projectmetadatamenu.dart';
+import 'package:wuon/widgets/overlay/voicesmenu.dart';
 
 class MuonSidebar extends StatelessWidget {
   const MuonSidebar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -33,7 +33,7 @@ class MuonSidebar extends StatelessWidget {
         color: themeData.scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 7,
             spreadRadius: 1,
           ),

@@ -1,19 +1,14 @@
-import 'package:muon/actions/base.dart';
-import 'package:muon/controllers/muonvoice.dart';
+part of 'base.dart';
 
 class ChangeVoiceAction extends MuonAction {
-  String get title {
-    return "Change voice";
-  }
-  String get subtitle {
-    return "to $newVoiceModel";
-  }
+  String get title => "Change voice";
+  String get subtitle => "to $newVoiceModel";
 
   final MuonVoiceController voice;
   final String newVoiceModel;
   final String oldVoiceModel;
 
-  ChangeVoiceAction(this.voice,this.newVoiceModel,this.oldVoiceModel);
+  ChangeVoiceAction(this.voice, this.newVoiceModel, this.oldVoiceModel);
 
   void perform() {
     voice.modelName = newVoiceModel;
@@ -22,7 +17,7 @@ class ChangeVoiceAction extends MuonAction {
   void undo() {
     voice.modelName = oldVoiceModel;
   }
-  
+
   void markVoiceModified() {
     voice.hasChangedNoteData = true;
   }

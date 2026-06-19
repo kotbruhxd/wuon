@@ -3,16 +3,16 @@ import 'dart:async';
 
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:muon/widgets/overlay/actioncontrols.dart';
+import 'package:wuon/widgets/overlay/actioncontrols.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/controllers/muonvoice.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/logic/musicxml.dart';
-import 'package:muon/widgets/overlay/voicecontrols.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/logic/musicxml.dart';
+import 'package:wuon/widgets/overlay/voicecontrols.dart';
 
 class MuonActionsMenu extends StatelessWidget {
   MuonActionsMenu({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   final _controller = ScrollController();
@@ -92,7 +92,7 @@ class MuonActionsMenu extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   offset: Offset(0,5),
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 3,
                   spreadRadius: 1,
                 ),
@@ -105,7 +105,7 @@ class MuonActionsMenu extends StatelessWidget {
         color: themeData.scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 1,
             spreadRadius: 1,
           ),

@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/editor.dart';
-import 'package:muon/main.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/main.dart';
 
 class MuonAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MuonAppBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -16,7 +16,7 @@ class MuonAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text("Muon Editor"),
+            title: Text("wuon"),
       actions: [
         IconButton(
           icon: const Icon(Icons.exposure_plus_1),
@@ -75,9 +75,11 @@ class MuonAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.computer),
           color: currentProject.internalStatus == "compiling_nsf" ? 
             Colors.yellow : Colors.white,
-          tooltip: "Render with NSF",
-          onPressed: () {
-            MuonEditor.compileVoiceInternalNSF(context);
+          tooltip: "Render audio",
+          onPressed: () async {
+            for(final voice in currentProject.voices) {
+              await MuonEditor.compileVoice(voice);
+            }
           },
         )),
         SizedBox(width: 40,),

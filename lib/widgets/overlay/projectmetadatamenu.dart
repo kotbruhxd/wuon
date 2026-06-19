@@ -3,11 +3,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/editor.dart';
+import 'package:wuon/editor.dart';
 
 class MuonProjectMetadataMenu extends StatelessWidget {
   const MuonProjectMetadataMenu({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -64,7 +64,7 @@ class MuonProjectMetadataMenu extends StatelessWidget {
             divisions: 4,
             label: "1 / " + currentProject.beatValue.toString(),
             onChanged: (double value) {
-              currentProject.beatValue = pow(2,value.round());
+              currentProject.beatValue = pow(2,value.round()).toInt();
               currentProject.markAllVoicesAsChanged();
             },
           )),

@@ -1,20 +1,20 @@
 import "dart:io";
 
 import "package:flutter/material.dart";
-import 'package:muon/actions/addnote.dart';
+import 'package:wuon/actions/base.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import "package:muon/controllers/muonnote.dart";
-import "package:muon/controllers/muonproject.dart";
-import 'package:muon/logic/helpers.dart';
-import "package:muon/serializable/muon.dart";
-import "package:muon/logic/musicxml.dart";
+import "package:wuon/controllers/muonnote.dart";
+import "package:wuon/controllers/muonproject.dart";
+import 'package:wuon/logic/helpers.dart';
+import "package:wuon/serializable/muon.dart";
+import "package:wuon/logic/musicxml.dart";
 import "package:flutter_audio_desktop/flutter_audio_desktop.dart";
 
 part "muonvoice.g.dart";
 
 @Controller()
 class MuonVoiceController with WeakEqualityController {
-  MuonProjectController project;
+  late MuonProjectController project;
 
   /// Folder name of the voice model this voice uses
   @Observable()
@@ -116,7 +116,7 @@ class MuonVoiceController with WeakEqualityController {
     });
   }
 
-  /// Generates mgc/bap/f0 files by executing Neutrino
+  /// Generates f0/melspec/wav files by executing Neutrino
   /// Requires labels to be already generated, and currently does
   /// not check whether labels already exist!
   /// 
@@ -130,97 +130,54 @@ class MuonVoiceController with WeakEqualityController {
       Directory(project.getProjectFilePath("label/timing/")).createSync();
     }
 
-    await Process.run(MuonHelpers.getProgramPath("NEUTRINO"), [
-      project.getProjectFilePath("label/full/" + voiceFileName + ".lab"),
-      project.getProjectFilePath("label/timing/" + voiceFileName + ".lab"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".f0"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".mgc"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".bap"),
-      MuonHelpers.getRawProgramPath("model/" + modelName + "/"),
-      "-n","8",
-      "-k","0",
-      "-m",
-      "-t",
-    ]).then((ProcessResult results) {
-      print(results.stdout);
-    });
-  }
-
-  /// Generates an audio file using the WORLD vocoder
-  /// Requires mgc/bap/f0, and does not verify whether these have
-  /// already been generated!
-  /// 
-  /// WORLD is a faster vocoder but at the cost of quality
-  /// 
-  /// TODO: check if mgc/bap/f0 exists
-  Future<void> vocodeWORLD() async {
     if(!Directory(project.getProjectFilePath("audio/")).existsSync()) {
       Directory(project.getProjectFilePath("audio/")).createSync();
     }
 
-    await Process.run(MuonHelpers.getProgramPath("WORLD"), [
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".f0"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".mgc"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".bap"),
-      "-f","1.0",
-      "-m","1.0",
-      "-o",project.getProjectFilePath("audio/" + voiceFileName + "_world.wav"),
-      "-n","8",
-      "-t",
-    ]).then((ProcessResult results) {
+    final neutrinoDir = MuonHelpers.getRawProgramPath("");
+    await Process.run(
+      MuonHelpers.getProgramPath("neutrino"), [
+        project.getProjectFilePath("label/full/" + voiceFileName + ".lab"),
+        project.getProjectFilePath("label/timing/" + voiceFileName + ".lab"),
+        project.getProjectFilePath("neutrino/" + voiceFileName + ".f0"),
+        project.getProjectFilePath("neutrino/" + voiceFileName + ".melspec"),
+        project.getProjectFilePath("audio/" + voiceFileName + ".wav"),
+        MuonHelpers.getRawProgramPath("model/" + modelName + "/"),
+        "-n","8",
+        "-k","0",
+        "-m",
+        "-t",
+      ],
+      environment: {
+        "LD_LIBRARY_PATH": "${neutrinoDir}bin:${neutrinoDir}NSF/bin",
+      },
+    ).then((ProcessResult results) {
       print(results.stdout);
+      print(results.stderr);
     });
   }
 
-  /// Generates an audio file using the NSF vocoder
-  /// Requires mgc/bap/f0, and does not verify whether these have
-  /// already been generated!
-  /// 
-  /// NSF is a better quality vocoder but at the cost of speed
-  /// and requires a NVIDIA GPU
-  /// 
-  /// TODO: check if mgc/bap/f0 exists
-  Future<void> vocodeNSF() async {
-    if(!Directory(project.getProjectFilePath("audio/")).existsSync()) {
-      Directory(project.getProjectFilePath("audio/")).createSync();
-    }
-
-    await Process.run(MuonHelpers.getProgramPath("NSF_IO"), [
-      project.getProjectFilePath("label/full/" + voiceFileName + ".lab"),
-      project.getProjectFilePath("label/timing/" + voiceFileName + ".lab"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".f0"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".mgc"),
-      project.getProjectFilePath("neutrino/" + voiceFileName + ".bap"),
-      modelName,
-      project.getProjectFilePath("audio/" + voiceFileName + "_nsf.wav"),
-      "-t",
-    ],workingDirectory: MuonHelpers.getRawProgramPath("")).then((ProcessResult results) {
-      print(results.stdout);
-    });
-  }
-
-  AudioPlayer audioPlayer;
+  AudioPlayer? audioPlayer;
   int audioPlayerDuration = 0;
-  Future<AudioPlayer> getAudioPlayer([Duration playPos]) async {
+  Future<AudioPlayer?> getAudioPlayer([Duration? playPos]) async {
     final voiceID = project.voices.indexOf(this);
     if(audioPlayer == null) {
       audioPlayer = new AudioPlayer(id: voiceID);
     }
 
-    await audioPlayer.unload();
-    final suc = await audioPlayer.load(project.getProjectFilePath("audio/" + voiceFileName + "_world.wav"));
-
-    audioPlayerDuration = (await audioPlayer.getDuration()).inMilliseconds;
-    audioPlayer.setPosition(playPos ?? Duration(seconds: 2));
-
-    if(!suc) {
+    await audioPlayer!.unload();
+    try {
+      await audioPlayer!.load(AudioSource.fromFile(File(project.getProjectFilePath("audio/" + voiceFileName + ".wav"))));
+      audioPlayerDuration = (await audioPlayer!.duration).inMilliseconds;
+      await audioPlayer!.setPosition(playPos ?? Duration(seconds: 2));
+    } catch (e) {
       audioPlayer = null;
     }
 
     return audioPlayer;
   }
 
-  MuonVoice toSerializable([MuonProject project]) {
+  MuonVoice toSerializable([MuonProject? project]) {
     final out = MuonVoice();
     out.project = project ?? this.project.toSerializable();
     out.modelName = this.modelName;
@@ -231,7 +188,7 @@ class MuonVoiceController with WeakEqualityController {
     return out;
   }
 
-  static MuonVoiceController fromSerializable(MuonVoice obj, [MuonProjectController project]) {
+  static MuonVoiceController fromSerializable(MuonVoice obj, [MuonProjectController? project]) {
     final out = MuonVoiceController().ctx();
     out.project = project ?? MuonProjectController.fromSerializable(obj.project);
     out.modelName = obj.modelName;

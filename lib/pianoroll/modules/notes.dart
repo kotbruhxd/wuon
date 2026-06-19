@@ -3,19 +3,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:muon/actions/cutnote.dart';
-import 'package:muon/actions/deletenote.dart';
-import 'package:muon/actions/movenote.dart';
-import 'package:muon/actions/pastenote.dart';
-import 'package:muon/actions/renamenote.dart';
-import 'package:muon/actions/retimenote.dart';
-import 'package:muon/controllers/muonnote.dart';
-import 'package:muon/controllers/muonvoice.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/helpers.dart';
-import 'package:muon/logic/japanese.dart';
-import 'package:muon/pianoroll/pianoroll.dart';
-import 'package:muon/serializable/muon.dart';
+import 'package:wuon/actions/base.dart';
+import 'package:wuon/controllers/muonnote.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/helpers.dart';
+import 'package:wuon/logic/japanese.dart';
+import 'package:wuon/pianoroll/pianoroll.dart';
+import 'package:wuon/serializable/muon.dart';
 import 'package:synaps_flutter/synaps_flutter.dart';
 
 int _toAbsoluteSemitones(String note, int octave) {
@@ -27,19 +22,19 @@ int _toAbsoluteSemitones(String note, int octave) {
 }
 
 class PianoRollNotesModule extends PianoRollModule {
-  final SynapsMap<MuonNoteController, bool> selectedNotes;
+  final Map<MuonNoteController, bool> selectedNotes;
 
-  MuonNoteController _internalDragFirstNote;
-  Map<MuonNoteController, MuonNote> noteDragOriginalData;
+  MuonNoteController? _internalDragFirstNote;
+  Map<MuonNoteController, MuonNote> noteDragOriginalData = {};
 
   PianoRollNotesModule({
-    @required this.selectedNotes,
+    required this.selectedNotes,
   }) : super();
 
   List<MuonNoteController> getSelectedNotesAsList() {
     final otherNotes = <MuonNoteController>[];
     for(final selectedNote in selectedNotes.keys) {
-      if(selectedNotes[selectedNote]) {
+      if(selectedNotes[selectedNote] == true) {
         otherNotes.add(selectedNote);
       }
     }
@@ -59,7 +54,7 @@ class PianoRollNotesModule extends PianoRollModule {
   }
 
   /// Get the note under where the mouse is
-  MuonNoteController getNoteAtScreenPos(Point screenPos) {
+  MuonNoteController? getNoteAtScreenPos(Point screenPos) {
     // O(n), LOOK AWAY!
     // I DON'T CARE
 
@@ -69,7 +64,7 @@ class PianoRollNotesModule extends PianoRollModule {
       for (final note in voice.notes) {
         final noteRect = getNoteRect(note);
 
-        if(noteRect.contains(Offset(canvasPos.x,canvasPos.y))) {
+        if(noteRect.contains(Offset(canvasPos.x.toDouble(),canvasPos.y.toDouble()))) {
           return note;
         }
       }
@@ -115,7 +110,7 @@ class PianoRollNotesModule extends PianoRollModule {
     final noteAtCursor = getNoteAtScreenPos(mousePos);
     
     if(noteAtCursor != null) {
-      var mouseBeats = painter.getBeatNumAtCursor(mousePos.x);
+      var mouseBeats = painter.getBeatNumAtCursor(mousePos.x.toDouble());
       var endBeat = (noteAtCursor.startAtTime + noteAtCursor.duration) / project.timeUnitsPerBeat;
 
       var cursorBeatEndDistance = (endBeat - mouseBeats) * painter.xScale * painter.pixelsPerBeat;
@@ -138,15 +133,13 @@ class PianoRollNotesModule extends PianoRollModule {
     final noteAtCursor = getNoteAtScreenPos(mousePos);
 
     if(!RawKeyboard.instance.physicalKeysPressed.contains(PhysicalKeyboardKey.shiftLeft)) {
-      selectedNotes.forEach((note,isActive) {selectedNotes[note] = false;});
+      selectedNotes.updateAll((note,isActive) => false);
     }
 
     if(numClicks == 1) {
       if(noteAtCursor != null) {
-        if(selectedNotes[noteAtCursor] == null) {
-          selectedNotes[noteAtCursor] = false;
-        }
-        selectedNotes[noteAtCursor] = !selectedNotes[noteAtCursor];
+        selectedNotes.putIfAbsent(noteAtCursor, () => false);
+        selectedNotes[noteAtCursor] = !(selectedNotes[noteAtCursor] ?? false);
       }
       else {
         project.playheadTime = (painter.getBeatNumAtCursor(mousePos.x) * project.timeUnitsPerBeat).roundToDouble() / project.timeUnitsPerBeat;
@@ -157,7 +150,7 @@ class PianoRollNotesModule extends PianoRollModule {
         selectedNotes[noteAtCursor] = true;
 
         // edit note lyrics
-        final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+        final RenderBox overlay = Overlay.of(context).context.findRenderObject()! as RenderBox;
 
         final initialLyricValue = noteAtCursor.lyric;
         final textController = TextEditingController(text: initialLyricValue);
@@ -195,14 +188,12 @@ class PianoRollNotesModule extends PianoRollModule {
                   final curNotePos = noteAtCursor.voice.notes.indexOf(noteAtCursor);
                   for(int i=curNotePos;i < noteAtCursor.voice.notes.length;i++) {
                     if((i - curNotePos) < hiraganaList.length) {
-                      if(!editHistory.containsKey(i)) {
-                        editHistory[i] = noteAtCursor.voice.notes[i].lyric;
-                      }
+                      editHistory.putIfAbsent(i, () => noteAtCursor.voice.notes[i].lyric);
                       noteAtCursor.voice.notes[i].lyric = hiraganaList[i - curNotePos];
                       newNoteLyrics[noteAtCursor.voice.notes[i]] = hiraganaList[i - curNotePos];
                     }
                     else if(editHistory.containsKey(i)) {
-                      noteAtCursor.voice.notes[i].lyric = editHistory[i];
+                      noteAtCursor.voice.notes[i].lyric = editHistory[i]!;
                     }
                   }
 
@@ -223,7 +214,7 @@ class PianoRollNotesModule extends PianoRollModule {
 
           for(final editedNote in newNoteLyrics.keys) {
             final notePos = noteAtCursor.voice.notes.indexOf(editedNote);
-            originalNoteLyrics[editedNote] = editHistory[notePos] ?? newNoteLyrics[editedNote];
+            originalNoteLyrics[editedNote] = editHistory[notePos] ?? newNoteLyrics[editedNote] ?? "";
           }
 
           final action = RenameNoteAction(newNoteLyrics, originalNoteLyrics, lastInput);
@@ -257,11 +248,10 @@ class PianoRollNotesModule extends PianoRollModule {
 
     _internalDragFirstNote = noteAtCursor;
 
-    noteDragOriginalData = {};
     noteDragOriginalData[noteAtCursor] = noteAtCursor.toSerializable();
 
     for(final note in selectedNotes.keys) {
-      if(selectedNotes[note]) {
+      if(selectedNotes[note] == true) {
         noteDragOriginalData[note] = note.toSerializable();
       }
     }
@@ -275,27 +265,27 @@ class PianoRollNotesModule extends PianoRollModule {
 
     if(!RawKeyboard.instance.physicalKeysPressed.contains(PhysicalKeyboardKey.shiftLeft)) {
       if(selectedNotes[note] != true) {
-        selectedNotes.forEach((note,isActive) {selectedNotes[note] = false;});
+        selectedNotes.updateAll((n,isActive) => false);
       }
     }
 
-    selectedNotes[note] = true;
+    selectedNotes[note!] = true;
     
     var originalFirstNote = noteDragOriginalData[note];
-    var mouseBeats = painter.getBeatNumAtCursor(mouseStartPos.x);
-    var endBeat = (originalFirstNote.startAtTime + originalFirstNote.duration) / project.timeUnitsPerBeat;
+    var mouseBeats = painter.getBeatNumAtCursor(mouseStartPos.x.toDouble());
+    var endBeat = (originalFirstNote!.startAtTime + originalFirstNote!.duration) / project.timeUnitsPerBeat;
 
     var cursorBeatEndDistance = (endBeat - mouseBeats) * painter.xScale * painter.pixelsPerBeat;
 
     bool resizeMode = cursorBeatEndDistance < 15;
 
     final mousePitch = painter.getPitchAtCursor(mousePos.y);
-    final deltaSemiTones = _toAbsoluteSemitones(mousePitch.note,mousePitch.octave) - _toAbsoluteSemitones(originalFirstNote.note,originalFirstNote.octave);
+    final deltaSemiTones = _toAbsoluteSemitones(mousePitch.note,mousePitch.octave) - _toAbsoluteSemitones(originalFirstNote!.note,originalFirstNote!.octave);
 
     final mouseBeatNum = painter.getBeatNumAtCursor(mousePos.x);
     final mouseBeatSubDivNum =
         ((mouseBeatNum * project.timeUnitsPerBeat) ~/ project.timeUnitsPerSubdivision);
-    final originalMouseBeatNum = painter.getBeatNumAtCursor(mouseStartPos.x);
+    final originalMouseBeatNum = painter.getBeatNumAtCursor(mouseStartPos.x.toDouble());
     final originalMouseBeatSubDivNum =
         ((originalMouseBeatNum * project.timeUnitsPerBeat) ~/ project.timeUnitsPerSubdivision);
     
@@ -308,10 +298,10 @@ class PianoRollNotesModule extends PianoRollModule {
     }
 
     for(final selectedNote in selectedNotes.keys) {
-      if(selectedNotes[selectedNote]) {
+      if(selectedNotes[selectedNote] == true) {
         if(noteDragOriginalData[selectedNote] != null) {
           if(resizeMode) {
-            selectedNote.duration = noteDragOriginalData[selectedNote].duration + resizeDelta;
+            selectedNote.duration = noteDragOriginalData[selectedNote]!.duration + resizeDelta;
             if(state.isShiftKeyHeld) {
               selectedNote.duration = max(project.timeUnitsPerSubdivision,floorToModulus(selectedNote.duration, project.timeUnitsPerSubdivision));
             }
@@ -320,20 +310,20 @@ class PianoRollNotesModule extends PianoRollModule {
             }
           }
           else {
-            selectedNote.startAtTime = max(0,noteDragOriginalData[selectedNote].startAtTime + deltaSegments);
+            selectedNote.startAtTime = max(0,noteDragOriginalData[selectedNote]!.startAtTime + deltaSegments);
             if(state.isShiftKeyHeld) {
               selectedNote.startAtTime = floorToModulus(selectedNote.startAtTime, project.timeUnitsPerSubdivision);
             }
             
-            selectedNote.note = noteDragOriginalData[selectedNote].note;
-            selectedNote.octave = noteDragOriginalData[selectedNote].octave;
+            selectedNote.note = noteDragOriginalData[selectedNote]!.note;
+            selectedNote.octave = noteDragOriginalData[selectedNote]!.octave;
             selectedNote.addSemitones(deltaSemiTones.floor());
           }
         }
       }
     }
 
-    project.playheadTime = note.startAtTime / project.timeUnitsPerBeat;
+    project.playheadTime = note!.startAtTime / project.timeUnitsPerBeat;
   }
 
   void onDragEnd(PointerEvent mouseEvent, Point mouseStartPos) {
@@ -344,11 +334,11 @@ class PianoRollNotesModule extends PianoRollModule {
       final notes = <MuonNoteController>[];
 
       for(final otherNote in selectedNotes.keys) {
-        if(selectedNotes[otherNote]) {
+        if(selectedNotes[otherNote] == true) {
           notes.add(otherNote);
-          timeDeltas.add(otherNote.startAtTime - noteDragOriginalData[otherNote].startAtTime);
-          semitoneDeltas.add(otherNote.toAbsoluteSemitones() - _toAbsoluteSemitones(noteDragOriginalData[otherNote].note,noteDragOriginalData[otherNote].octave));
-          durationDeltas.add(otherNote.duration - noteDragOriginalData[otherNote].duration);
+          timeDeltas.add(otherNote.startAtTime - noteDragOriginalData[otherNote]!.startAtTime);
+          semitoneDeltas.add(otherNote.toAbsoluteSemitones() - _toAbsoluteSemitones(noteDragOriginalData[otherNote]!.note,noteDragOriginalData[otherNote]!.octave));
+          durationDeltas.add(otherNote.duration - noteDragOriginalData[otherNote]!.duration);
         }
       }
 
@@ -369,13 +359,14 @@ class PianoRollNotesModule extends PianoRollModule {
     }
 
     noteDragOriginalData.clear();
+    noteDragOriginalData = {};
     _internalDragFirstNote = null;
   }
 
   void onSelect(PointerEvent mouseEvent, Rect selectionBox) {
     if (!RawKeyboard.instance.physicalKeysPressed
         .contains(PhysicalKeyboardKey.shiftLeft)) {
-      selectedNotes.forEach((note, isActive) => selectedNotes[note] = false);
+      selectedNotes.updateAll((note, isActive) => false);
     }
 
     var notes = getNotesTouchingRect(selectionBox);
@@ -416,7 +407,7 @@ class PianoRollNotesModule extends PianoRollModule {
 
         int earliestTime = 2147483647; // assuming int32, I cannot be bothered verifying this
         for(final selectedNote in selectedNotes.keys) {
-          if(selectedNotes[selectedNote]) {
+          if(selectedNotes[selectedNote] == true) {
             project.copiedNotesVoices.add(selectedNote.voice);
             project.copiedNotes.add(selectedNote.toSerializable());
             earliestTime = min(earliestTime,selectedNote.startAtTime);
@@ -469,7 +460,7 @@ class PianoRollNotesModule extends PianoRollModule {
 
     if(keyEvent.isKeyPressed(LogicalKeyboardKey.delete)) {
       for(final selectedNote in selectedNotes.keys) {
-        if(selectedNotes[selectedNote]) {
+        if(selectedNotes[selectedNote] == true) {
           selectedNote.voice.notes.remove(selectedNote);
         }
       }
@@ -485,9 +476,9 @@ class PianoRollNotesModule extends PianoRollModule {
     else if(keyEvent.isKeyPressed(LogicalKeyboardKey.arrowUp)) {
       int moveBy = keyEvent.isShiftPressed ? 12 : 1;
 
-      MuonNoteController lastNote;
+      MuonNoteController? lastNote;
       for(final selectedNote in selectedNotes.keys) {
-        if(selectedNotes[selectedNote]) {
+        if(selectedNotes[selectedNote] == true) {
           selectedNote.addSemitones(moveBy);
           lastNote = selectedNote;
         }
@@ -503,9 +494,9 @@ class PianoRollNotesModule extends PianoRollModule {
     else if(keyEvent.isKeyPressed(LogicalKeyboardKey.arrowDown)) {
       int moveBy = keyEvent.isShiftPressed ? -12 : -1;
 
-      MuonNoteController lastNote;
+      MuonNoteController? lastNote;
       for(final selectedNote in selectedNotes.keys) {
-        if(selectedNotes[selectedNote]) {
+        if(selectedNotes[selectedNote] == true) {
           selectedNote.addSemitones(moveBy);
           lastNote = selectedNote;
         }
@@ -515,17 +506,15 @@ class PianoRollNotesModule extends PianoRollModule {
         final notes = getSelectedNotesAsList();
         final action = MoveNoteAction(notes,List.filled(notes.length,0),List.filled(notes.length,moveBy));
 
-        print("Action added");
-
         project.addAction(action);
       }
     }
     else if(keyEvent.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
       int moveBy = keyEvent.isShiftPressed ? project.timeUnitsPerBeat : project.timeUnitsPerSubdivision;
 
-      MuonNoteController lastNote;
+      MuonNoteController? lastNote;
       for(final selectedNote in selectedNotes.keys) {
-        if(selectedNotes[selectedNote]) {
+        if(selectedNotes[selectedNote] == true) {
           selectedNote.startAtTime = selectedNote.startAtTime + moveBy;
           lastNote = selectedNote;
         }
@@ -541,9 +530,9 @@ class PianoRollNotesModule extends PianoRollModule {
     else if(keyEvent.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
       int moveBy = keyEvent.isShiftPressed ? -project.timeUnitsPerBeat : -project.timeUnitsPerSubdivision;
 
-      MuonNoteController lastNote;
+      MuonNoteController? lastNote;
       for(final selectedNote in selectedNotes.keys) {
-        if(selectedNotes[selectedNote]) {
+        if(selectedNotes[selectedNote] == true) {
           selectedNote.startAtTime = max(0,selectedNote.startAtTime + moveBy);
           lastNote = selectedNote;
         }
@@ -565,20 +554,20 @@ class PianoRollNotesModule extends PianoRollModule {
     final yScale = painter.yScale;
 
     for (final voice in project.voices) {
-      final noteColor = voice.color;
+      final noteColor = voice.color as Color;
 
       for (final note in voice.notes) {
         final noteRect = getNoteRect(note);
 
-        if (selectedNotes.containsKey(note) && selectedNotes[note]) {
+        if (selectedNotes.containsKey(note) && (selectedNotes[note] == true)) {
           final borderThickness = 10.0;
           if (themeData.brightness == Brightness.dark) {
             canvas.drawRect(noteRect, Paint()..color = Colors.white);
             canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withOpacity(0.75));
+                noteRect, Paint()..color = noteColor.withValues(alpha: 0.75));
           } else {
             canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withOpacity(0.5));
+                noteRect, Paint()..color = noteColor.withValues(alpha: 0.5));
           }
 
           canvas.drawRect(painter.deflateScaled(noteRect, borderThickness),
@@ -589,7 +578,7 @@ class PianoRollNotesModule extends PianoRollModule {
           } else {
             canvas.drawRect(noteRect, Paint()..color = Colors.black);
             canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withOpacity(0.95));
+                noteRect, Paint()..color = noteColor.withValues(alpha: 0.95));
           }
         }
       }

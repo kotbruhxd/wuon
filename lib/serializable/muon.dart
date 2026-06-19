@@ -6,31 +6,31 @@ import "package:path/path.dart" as p;
 
 part "muon.g.dart";
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class MuonNote {
   MuonNote();
 
-  String note;
-  int octave;
-  String lyric;
+  late String note;
+  late int octave;
+  late String lyric;
 
   // timing
-  int startAtTime;
-  int duration;
+  late int startAtTime;
+  late int duration;
 
   factory MuonNote.fromJson(Map<String, dynamic> json) => _$MuonNoteFromJson(json);
   Map<String, dynamic> toJson() => _$MuonNoteToJson(this);
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class MuonVoice {
   MuonVoice();
 
-  @JsonKey(ignore: true)
-  MuonProject project;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late MuonProject project;
 
   // voice metadata
-  String modelName;
+  late String modelName;
   bool randomiseTiming = false;
 
   // notes
@@ -43,17 +43,17 @@ class MuonVoice {
   Map<String, dynamic> toJson() => _$MuonVoiceToJson(this);
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class MuonProject {
   MuonProject();
 
   // project metadata
-  @JsonKey(ignore: true)
-  String projectDir;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late String projectDir;
 
   // project metadata
-  @JsonKey(ignore: true)
-  String projectFileName;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late String projectFileName;
 
   // tempo
   double bpm = 120;
@@ -68,7 +68,7 @@ class MuonProject {
   factory MuonProject.fromJson(Map<String, dynamic> json) => _$MuonProjectFromJson(json);
   Map<String, dynamic> toJson() => _$MuonProjectToJson(this);
 
-  static MuonProject loadFromFile(String projectFile) {
+  static MuonProject? loadFromFile(String projectFile) {
     if(File(projectFile).existsSync()) {
       final file = new File(projectFile);
 
@@ -76,7 +76,7 @@ class MuonProject {
         var fileContents = file.readAsStringSync();
 
         final jsonData = jsonDecode(fileContents);
-        MuonProject project = MuonProject.fromJson(jsonData);
+        MuonProject project = MuonProject.fromJson(jsonData as Map<String, dynamic>);
 
         for(final voice in project.voices) {
           voice.project = project;
@@ -92,7 +92,7 @@ class MuonProject {
     return null;
   }
 
-  static MuonProject loadFromDir(String projectDir,String projectFileName) {
+  static MuonProject? loadFromDir(String projectDir,String projectFileName) {
     if(Directory(projectDir).existsSync()) {
       return MuonProject.loadFromFile(projectDir + "/" + projectFileName);
     }

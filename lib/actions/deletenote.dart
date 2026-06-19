@@ -1,19 +1,8 @@
-import 'package:muon/actions/base.dart';
-import 'package:muon/controllers/muonnote.dart';
-import 'package:muon/controllers/muonvoice.dart';
+part of 'base.dart';
 
 class DeleteNoteAction extends MuonAction {
-  String get title {
-    if(notes.length > 1) {
-      return "Delete notes";
-    }
-    else {
-      return "Delete note";
-    }
-  }
-  String get subtitle {
-    return "";
-  }
+  String get title => notes.length > 1 ? "Delete notes" : "Delete note";
+  String get subtitle => "";
 
   final List<MuonNoteController> notes;
 
@@ -30,7 +19,7 @@ class DeleteNoteAction extends MuonAction {
       note.voice.addNoteInternal(note);
     }
   }
-  
+
   void markVoiceModified() {
     for(final note in notes) {
       note.voice.hasChangedNoteData = true;

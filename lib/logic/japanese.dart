@@ -210,6 +210,6 @@ class JapaneseUTF8 {
   static List<String> alphabetToHiragana(String input) {
     String hiragana = kanaKit.toHiragana(input);
 
-    return _charRegex.allMatches(hiragana).toList().map((RegExpMatch val) => val.group(0)).toList();
+    return _charRegex.allMatches(hiragana).map((RegExpMatch val) => val.group(0)!).toList();
   }
 }

@@ -1,15 +1,8 @@
-import 'dart:math';
-
-import 'package:muon/actions/base.dart';
-import 'package:muon/controllers/muonvoice.dart';
+part of 'base.dart';
 
 class AddVoiceAction extends MuonAction {
-  String get title {
-    return "Add voice";
-  }
-  String get subtitle {
-    return "";
-  }
+  String get title => "Add voice";
+  String get subtitle => "";
 
   final MuonVoiceController voice;
 
@@ -26,7 +19,7 @@ class AddVoiceAction extends MuonAction {
       voice.project.currentVoiceID = max(0, voice.project.currentVoiceID);
     }
     if(voice.audioPlayer != null) {
-      voice.audioPlayer.dispose();
+      voice.audioPlayer?.dispose();
       voice.audioPlayer = null;
     }
     voice.project.voices.remove(voice);

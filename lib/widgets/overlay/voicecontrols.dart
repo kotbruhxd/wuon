@@ -2,17 +2,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:muon/actions/changevoice.dart';
-import 'package:muon/actions/removevoice.dart';
+import 'package:wuon/actions/base.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/controllers/muonvoice.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/logic/helpers.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/logic/helpers.dart';
 
 class MuonVoiceControls extends StatelessWidget {
   const MuonVoiceControls({
-    Key key,
-    @required this.voice,
+    Key? key,
+    required this.voice,
   }) : super(key: key);
 
   final MuonVoiceController voice;
@@ -31,11 +30,11 @@ class MuonVoiceControls extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: voice.color,
+              color: voice.color as Color,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   blurRadius: 2,
                   spreadRadius: 2,
                 ),
@@ -53,7 +52,7 @@ class MuonVoiceControls extends StatelessWidget {
           ),
           Rx(() => IconButton(
             icon: const Icon(Icons.center_focus_strong),
-            disabledColor: Colors.green.withOpacity(0.9),
+            disabledColor: Colors.green.withValues(alpha: 0.9),
             tooltip: "Select voice",
             onPressed: currentProject.currentVoiceID == currentProject.voices.indexOf(voice) ? null : () {
               currentProject.currentVoiceID = currentProject.voices.indexOf(voice);
@@ -91,7 +90,7 @@ class MuonVoiceControls extends StatelessWidget {
             tooltip: "Delete voice",
             onPressed: () {
               if(voice.audioPlayer != null) {
-                voice.audioPlayer.dispose();
+                voice.audioPlayer?.dispose();
                 voice.audioPlayer = null;
               }
               final currentID = voice.project.voices.indexOf(voice);
@@ -107,10 +106,10 @@ class MuonVoiceControls extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: themeData.buttonColor,
+        color: themeData.colorScheme.primary,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 1,
             spreadRadius: 1,
           ),

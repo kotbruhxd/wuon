@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "muon")
-set(APPLICATION_ID "com.example.muon")
+set(BINARY_NAME "wuon")
+set(APPLICATION_ID "com.kotbruh.wuon")
 
 cmake_policy(SET CMP0063 NEW)
 

@@ -1,12 +1,12 @@
 import "package:synaps_flutter/synaps_flutter.dart";
-import "package:muon/controllers/muonvoice.dart";
-import "package:muon/serializable/muon.dart";
+import "package:wuon/controllers/muonvoice.dart";
+import "package:wuon/serializable/muon.dart";
 
 part "muonnote.g.dart";
 
 @Controller()
 class MuonNoteController with WeakEqualityController {
-  MuonVoiceController voice;
+  late MuonVoiceController voice;
 
   /// The alphabetical value of this note
   /// `/[A-G]#?/`

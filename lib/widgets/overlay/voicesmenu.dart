@@ -2,14 +2,14 @@
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 import 'package:flutter/material.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/controllers/muonvoice.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/logic/musicxml.dart';
-import 'package:muon/widgets/overlay/voicecontrols.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/logic/musicxml.dart';
+import 'package:wuon/widgets/overlay/voicecontrols.dart';
 
 class MuonVoicesMenu extends StatelessWidget {
   const MuonVoicesMenu({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -63,7 +63,10 @@ class MuonVoicesMenu extends StatelessWidget {
                         FileSelectorPlatform.instance.openFile(
                           confirmButtonText: "Open MusicXML File",
                         )
-                        .catchError((err) {print("internal file browser error: " + err.toString());}) // oh wow i am so naughty
+                        .catchError((err) {
+                          print("internal file browser error: " + err.toString());
+                          return null;
+                        })
                         .then((value) {
                           if(value != null) {
                             MusicXML musicXML = MusicXMLUtils.parseFile(value.path);
@@ -85,7 +88,10 @@ class MuonVoicesMenu extends StatelessWidget {
                         FileSelectorPlatform.instance.openFile(
                           confirmButtonText: "Open MIDI File",
                         )
-                        .catchError((err) {print("internal file browser error: " + err.toString());}) // oh wow i am so naughty
+                        .catchError((err) {
+                          print("internal file browser error: " + err.toString());
+                          return null;
+                        })
                         .then((value) {
                           if(value != null) {
                             currentProject.importVoiceFromMIDIFile(value.path, true);
@@ -102,7 +108,7 @@ class MuonVoicesMenu extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   offset: Offset(0,5),
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 3,
                   spreadRadius: 1,
                 ),
@@ -115,7 +121,7 @@ class MuonVoicesMenu extends StatelessWidget {
         color: themeData.scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 1,
             spreadRadius: 1,
           ),

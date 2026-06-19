@@ -1,7 +1,7 @@
 import "dart:io";
 
 import "package:path/path.dart" as p;
-import "package:muon/serializable/settings.dart";
+import "package:wuon/serializable/settings.dart";
 
 class MuonHelpers {
   /// Returns a the absolute path to subdirectory `programName`
@@ -13,10 +13,18 @@ class MuonHelpers {
   /// Returns a the absolute path to subdirectory `programName`
   /// inside the Neutrino `bin` directory
   static String getProgramPath(String programName) {
-    String out = getMuonSettings().neutrinoDir + "/bin/" + programName;
+    String base = getMuonSettings().neutrinoDir + "/bin/" + programName;
 
+    String out = base;
     if(Platform.isWindows) {
       out += ".exe";
+    }
+
+    if(!File(out).existsSync()) {
+      out = base.toLowerCase();
+      if(Platform.isWindows) {
+        out += ".exe";
+      }
     }
 
     return out;

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:muon/pianoroll/pianoroll.dart';
+import 'package:wuon/pianoroll/pianoroll.dart';
 
 class PianoRollWAILAModule extends PianoRollModule {
   PianoRollWAILAModule() : super();
@@ -34,13 +34,14 @@ class PianoRollWAILAModule extends PianoRollModule {
     canvas.restore();
 
     if (curMousePos != null) {
-      final mouseBeatNum = max(0, painter.getBeatNumAtCursor(curMousePos.x));
+      final mousePos = curMousePos!;
+      final mouseBeatNum = max(0.0, painter.getBeatNumAtCursor(mousePos.x.toDouble()));
       final mouseBeatSubDivNum =
           (((mouseBeatNum * project.timeUnitsPerBeat).floor() %
                   project.timeUnitsPerBeat) ~/ project.timeUnitsPerSubdivision) +
               1;
       final mouseMeasureNum = (mouseBeatNum / project.beatsPerMeasure).ceil();
-      final mousePitch = painter.getPitchAtCursor(curMousePos.y);
+      final mousePitch = painter.getPitchAtCursor(mousePos.y.toDouble());
       var wailaLabelPainter = new TextPainter(
         text: new TextSpan(
           style: new TextStyle(

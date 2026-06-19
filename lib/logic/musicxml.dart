@@ -7,41 +7,41 @@ import "package:universal_html/parsing.dart" as html show parseXmlDocument;
 class MusicXMLEvent {
   /// The time offset of this event, measured in beats (i.e. how much
   ///  time needs to pass before this event is triggered)
-  double absoluteTime;
+  double absoluteTime = 0;
   
   /// The time offset of this event, measured in divisions (i.e. how much
   ///  time needs to pass before this event is triggered)
   /// 
   /// NB: `x` beats `= x * divisionsPerBeat` divisions
   /// 
-  double time;
+  double time = 0;
   
   /// The duration of this event, measured in divisions
   double duration = 0;
   
-  MusicXMLEventTempo lastTempo;
-  MusicXMLEventTimeSignature lastTimeSignature;
-  MusicXMLEventDivision lastDivision;
+  MusicXMLEventTempo? lastTempo;
+  MusicXMLEventTimeSignature? lastTimeSignature;
+  MusicXMLEventDivision? lastDivision;
 
   /// This constructor internally populates
   /// [lastTempo], [lastTimeSignature] and [lastDivision]
   MusicXMLEvent(MusicXML parent) {
     if(this is MusicXMLEventTempo) {
-      lastTempo = this;
+      lastTempo = this as MusicXMLEventTempo;
     }
     else {
       lastTempo = parent.lastTempo;
     }
 
     if(this is MusicXMLEventTimeSignature) {
-      lastTimeSignature = this;
+      lastTimeSignature = this as MusicXMLEventTimeSignature;
     }
     else {
       lastTimeSignature = parent.lastTimeSignature;
     }
 
     if(this is MusicXMLEventDivision) {
-      lastDivision = this;
+      lastDivision = this as MusicXMLEventDivision;
     }
     else {
       lastDivision = parent.lastDivision;
@@ -50,12 +50,8 @@ class MusicXMLEvent {
 
   /// The duration of this event, measured in beats
   double get absoluteDuration {
-    int divisions = 1;
-
-    if(lastDivision != null) {
-      divisions = lastDivision.divisions;
-    }
-
+    int divisions = lastDivision?.divisions ?? 1;
+  
     return (duration / divisions);
   }
 }
@@ -65,7 +61,7 @@ class MusicXMLEventDivision extends MusicXMLEvent {
 
   /// Number of divisions per beat
   /// Should never be zero
-  int divisions;
+  late int divisions;
 }
 
 
@@ -73,25 +69,25 @@ class MusicXMLEventTempo extends MusicXMLEvent {
   MusicXMLEventTempo(MusicXML parent) : super(parent);
 
   /// Beats per minute
-  double tempo;
+  late double tempo;
 }
 
 class MusicXMLEventTimeSignature extends MusicXMLEvent {
   MusicXMLEventTimeSignature(MusicXML parent) : super(parent);
 
   /// Beats per measure (numerator in a time signature)
-  int beats;
+  late int beats;
 
   /// Quantity of each beat (denominator in a time signature)
   /// 
   /// Example values are powers of 2
   /// `2`, `4`, `8`, `16`, ...
-  int beatType;
+  late int beatType;
 }
 
 class MusicXMLPitch {
-  int octave;
-  String note;
+  late int octave;
+  late String note;
 
   /// returns true if both pitches are on the same
   /// octave and have the same note value
@@ -110,8 +106,8 @@ class MusicXMLEventVoiced extends MusicXMLEvent {
   MusicXMLEventVoiced(MusicXML parent) : super(parent);
 
   /// The MusicXML voice of this event
-  /// Doesn't have any special use case in Muon
-  int voice;
+  /// Doesn't have any special use case in wuon
+  late int voice;
 }
 
 class MusicXMLEventRest extends MusicXMLEventVoiced {
@@ -120,9 +116,9 @@ class MusicXMLEventRest extends MusicXMLEventVoiced {
 
 class MusicXMLEventNote extends MusicXMLEventVoiced {
   MusicXMLEventNote(MusicXML parent) : super(parent);
-  String lyric;
+  late String lyric;
 
-  MusicXMLPitch pitch;
+  late MusicXMLPitch pitch;
 
   /// Used internally to merge multiple notes
   bool compoundNote = false;
@@ -133,9 +129,9 @@ class MusicXMLEventNote extends MusicXMLEventVoiced {
 
 /// Used internally to convert divisions to note types
 class _NoteResolution {
-  String noteType;
-  int dots;
-  double beats;
+  late String noteType;
+  late int dots;
+  late double beats;
 }
 
 /// 
@@ -168,10 +164,10 @@ class MusicXML {
   /// The total duration of all the events contained in this file, measured in beats
   double absoluteDuration = 0.0;
 
-  MusicXMLEventTempo lastTempo;
-  MusicXMLEventTimeSignature lastTimeSignature;
-  MusicXMLEventDivision lastDivision;
-  MusicXMLEventNote lastNote;
+  MusicXMLEventTempo? lastTempo;
+  MusicXMLEventTimeSignature? lastTimeSignature;
+  MusicXMLEventDivision? lastDivision;
+  MusicXMLEventNote? lastNote;
 
   /// 
   /// Adds a MusicXMLEvent to the list of events stored in this MusicXML class
@@ -208,12 +204,8 @@ class MusicXML {
   /// Converts note duration (measured in divisions) to absolute
   /// duration (measured in beats)
   double noteDurationToAbsoluteTime(double noteDuration) {
-    int divisions = 1;
-
-    if(lastDivision != null) {
-      divisions = lastDivision.divisions;
-    }
-
+    int divisions = lastDivision?.divisions ?? 1;
+  
     return noteDuration / divisions;
   }
 
@@ -242,21 +234,19 @@ class MusicXML {
   /// it may no longer accept any note merges.
   /// 
   void mergeNote(MusicXMLEventNote noteEvent,bool resolve) {
-    if(lastNote != null) {
-      if(lastNote.compoundNote && !lastNote.compoundNoteResolved) {
-        if(lastNote.pitch.isEqualTo(noteEvent.pitch)) {
-          absoluteDuration = absoluteDuration + noteEvent.absoluteDuration;
-          
-          lastNote.duration += noteEvent.duration;
-          duration = duration + noteEvent.duration;
+    if((lastNote != null) && lastNote!.compoundNote && !lastNote!.compoundNoteResolved) {
+      if(lastNote!.pitch.isEqualTo(noteEvent.pitch)) {
+        absoluteDuration = absoluteDuration + noteEvent.absoluteDuration;
+        
+        lastNote!.duration += noteEvent.duration;
+        duration = duration + noteEvent.duration;
 
-          lastNote.compoundNoteResolved = resolve;
+        lastNote!.compoundNoteResolved = resolve;
 
-          return;
-        }
+        return;
       }
     }
-
+  
     noteEvent.compoundNote = true;
     noteEvent.compoundNoteResolved = resolve;
     addEvent(noteEvent);
@@ -329,7 +319,7 @@ class MusicXML {
 }
 
 class MusicXMLUtils {
-  static html.Element _getChildElement(html.Element el, String tag) {
+  static html.Element? _getChildElement(html.Element el, String tag) {
     for(final child in el.childNodes) {
       if(child is html.Element) {
         if(child.nodeName == tag) {
@@ -344,7 +334,7 @@ class MusicXMLUtils {
   static String _getChildText(html.Element el, String tag, String defaultVal) {
     var child = _getChildElement(el, tag);
     if (child != null) {
-      return child.text;
+      return child.text ?? defaultVal;
     }
 
     return defaultVal;
@@ -354,7 +344,7 @@ class MusicXMLUtils {
     var child = _getChildElement(el, tag);
     if (child != null) {
       if(child.attributes[attribute] != null) {
-        return child.attributes[attribute];
+        return child.attributes[attribute] ?? defaultVal;
       }
     }
 
@@ -372,10 +362,10 @@ class MusicXMLUtils {
                   var timeSigEvent = MusicXMLEventTimeSignature(out);
                   for(final timeSignature in attribute.childNodes) {
                     if(timeSignature.nodeName == "beats") {
-                      timeSigEvent.beats = int.parse(timeSignature.text);
+                      timeSigEvent.beats = int.parse(timeSignature.text!);
                     }
                     else if(timeSignature.nodeName == "beat-type") {
-                      timeSigEvent.beatType = int.parse(timeSignature.text);
+                      timeSigEvent.beatType = int.parse(timeSignature.text!);
                     }
                   }
                   out.addEvent(timeSigEvent);
@@ -383,7 +373,7 @@ class MusicXMLUtils {
                 }
                 case "divisions": {
                   var divEvent = MusicXMLEventDivision(out);
-                  divEvent.divisions = int.parse(attribute.text);
+                  divEvent.divisions = int.parse(attribute.text!);
                   out.addEvent(divEvent);
 
                   break;
@@ -400,7 +390,7 @@ class MusicXMLUtils {
               if(directionData is html.Element) {
                 if(directionData.nodeName == "sound") {
                   var tempoEvent = MusicXMLEventTempo(out);
-                  tempoEvent.tempo = double.parse(directionData.getAttribute("tempo"));
+                  tempoEvent.tempo = double.parse(directionData.getAttribute("tempo")!);
                   out.addEvent(tempoEvent);
                 }
               }
@@ -409,7 +399,7 @@ class MusicXMLUtils {
           }
           case "sound": {
             var tempoEvent = MusicXMLEventTempo(out);
-            tempoEvent.tempo = double.parse(el.getAttribute("tempo"));
+            tempoEvent.tempo = double.parse(el.getAttribute("tempo")!);
             out.addEvent(tempoEvent);
             break;
           }
@@ -420,7 +410,7 @@ class MusicXMLUtils {
             var voiceRaw = _getChildText(el,"voice","1");
             int voice = int.parse(voiceRaw);
 
-            var durationVal = double.parse(duration.text);
+            var durationVal = double.parse(duration.text!);
 
             var rest = _getChildElement(el,"rest");
             if(rest != null) {
@@ -434,7 +424,7 @@ class MusicXMLUtils {
               noteEvent.lyric = _getChildText(el,"lyric","").trim();
 
               var pitch = MusicXMLPitch();
-              var pitchData = _getChildElement(el, "pitch");
+              var pitchData = _getChildElement(el, "pitch")!;
               pitch.note = _getChildText(pitchData,"step","C");
               pitch.octave = int.parse(_getChildText(pitchData,"octave","4"));
               if(_getChildText(pitchData, "alter", "0") == "1") {
@@ -513,7 +503,7 @@ class MusicXMLUtils {
     String out = "";
     int indentLevel = 0;
 
-    void append(str) => out += str;
+    void append(String str) => out += str;
     void indent() {
       indentLevel += 1;
       if(out.contains(RegExp("\n[ ]+\$"))) {
@@ -534,7 +524,7 @@ class MusicXMLUtils {
       }
     }
 
-    void beginTag(tagName,Map<String,String> attributes) {
+    void beginTag(String tagName,Map<String,String> attributes) {
       append("<");
       append(tagName);
       if(attributes.length > 0) {
@@ -543,7 +533,7 @@ class MusicXMLUtils {
           append(attrKey);
           append("=");
           append('"');
-          append(attributes[attrKey]);
+          append(attributes[attrKey]!);
           append('"');
         }
       }
@@ -552,7 +542,7 @@ class MusicXMLUtils {
       newline();
     }
 
-    void endTag(tagName) {
+    void endTag(String tagName) {
       outdent();
       newline();
       append("</");
@@ -570,7 +560,7 @@ class MusicXMLUtils {
           append(attrKey);
           append("=");
           append('"');
-          append(attributes[attrKey]);
+          append(attributes[attrKey]!);
           append('"');
         }
       }
@@ -591,7 +581,7 @@ class MusicXMLUtils {
           append(attrKey);
           append("=");
           append('"');
-          append(attributes[attrKey]);
+          append(attributes[attrKey]!);
           append('"');
         }
       }
@@ -640,34 +630,30 @@ class MusicXMLUtils {
       if(divisionToNoteType.containsKey(beats)) {
         resolution.beats = beats;
         resolution.dots = 0;
-        resolution.noteType = divisionToNoteType[beats];
+        resolution.noteType = divisionToNoteType[beats]!;
       }
       else {
         if(divisionToDottedNoteType.containsKey(beats)) {
           resolution.beats = beats;
           resolution.dots = 1;
-          resolution.noteType = divisionToDottedNoteType[beats];
+          resolution.noteType = divisionToDottedNoteType[beats]!;
         }
         else if(divisionToDoubleDottedNoteType.containsKey(beats)) {
           resolution.beats = beats;
           resolution.dots = 2;
-          resolution.noteType = divisionToDoubleDottedNoteType[beats];
+          resolution.noteType = divisionToDoubleDottedNoteType[beats]!;
         }
         else if(divisionToTripleDottedNoteType.containsKey(beats)) {
           resolution.beats = beats;
           resolution.dots = 3;
-          resolution.noteType = divisionToTripleDottedNoteType[beats];
+          resolution.noteType = divisionToTripleDottedNoteType[beats]!;
         }
       }
       
-      if(resolution.dots != null) {
-        return resolution;
-      }
-
-      return null;
+      return resolution;
     }
 
-    _NoteResolution resolveNoteFallback(double beats) {
+    _NoteResolution? resolveNoteFallback(double beats) {
       var beatList = divisionToNoteType.keys.toList();
       beatList.sort((a,b) => b.compareTo(a));
       
@@ -689,28 +675,28 @@ class MusicXMLUtils {
           _NoteResolution resolution = _NoteResolution();
           resolution.beats = noteTimeTripleDotted;
           resolution.dots = 3;
-          resolution.noteType = divisionToTripleDottedNoteType[noteTimeTripleDotted];
+          resolution.noteType = divisionToTripleDottedNoteType[noteTimeTripleDotted]!;
           return resolution;
         }
         else if(beats >= noteTimeDoubleDotted) {
           _NoteResolution resolution = _NoteResolution();
           resolution.beats = noteTimeDoubleDotted;
           resolution.dots = 2;
-          resolution.noteType = divisionToDoubleDottedNoteType[noteTimeDoubleDotted];
+          resolution.noteType = divisionToDoubleDottedNoteType[noteTimeDoubleDotted]!;
           return resolution;
         }
         else if(beats >= noteTimeDotted) {
           _NoteResolution resolution = _NoteResolution();
           resolution.beats = noteTimeDotted;
           resolution.dots = 1;
-          resolution.noteType = divisionToDottedNoteType[noteTimeDotted];
+          resolution.noteType = divisionToDottedNoteType[noteTimeDotted]!;
           return resolution;
         }
         else if(beats >= noteTime) {
           _NoteResolution resolution = _NoteResolution();
           resolution.beats = noteTime;
           resolution.dots = 0;
-          resolution.noteType = divisionToNoteType[noteTime];
+          resolution.noteType = divisionToNoteType[noteTime]!;
           return resolution;
         }
       }
@@ -718,21 +704,13 @@ class MusicXMLUtils {
       return null;
     }
 
-    _NoteResolution resolveNoteFallbackDiscrete(int beats) {
+    _NoteResolution? resolveNoteFallbackDiscrete(int beats) {
       var lhs = (beats / 2).floor();
       var rhs = beats - lhs;
 
       var lhsRes = resolveNote(lhs.toDouble());
-      var rhsRes = resolveNote(rhs.toDouble());
 
-      if(lhsRes != null) {
-        if(rhsRes != null) {
-          return lhsRes;
-        }
-      }
-
-      // return resolveNoteFallback(beats.toDouble());
-      return null;
+      return lhsRes;
     }
 
     bool divSet = false;
@@ -742,7 +720,7 @@ class MusicXMLUtils {
     beginTag("score-partwise",{});
       beginTag("identification",{});
         beginTag("encoding",{});
-          valueTag("software", "muon", {});
+          valueTag("software", "wuon", {});
         endTag("encoding");
       endTag("identification");
       beginTag("part-list",{});
@@ -804,18 +782,8 @@ class MusicXMLUtils {
                   beatsRemaining = lastBeats.toDouble();
                 }
 
-                var writeDur = min(beatsRemaining * lastDivision,duration);
+                var writeDur = min(beatsRemaining * lastDivision,duration).toDouble();
                 var noteResolution = resolveNote(writeDur);
-
-                if(noteResolution == null) {
-                  // ruh roh
-                  var backupResolution = resolveNoteFallback(writeDur);
-
-                  if(backupResolution != null) {
-                    noteResolution = backupResolution;
-                    writeDur = backupResolution.beats;
-                  }
-                }
 
                 curBeat += writeDur / lastDivision;
                 beatsRemaining = max(0,curMeasureNum * lastBeats - curBeat);
@@ -824,17 +792,11 @@ class MusicXMLUtils {
                 beginTag("note",{});
                   valueTagSelfClosing("rest", {}); newline();
                   valueTag("duration", writeDur.toStringAsFixed(0), {}); newline();
-                  if(noteResolution != null) {
-                    valueTag("type", noteResolution.noteType, {}); newline();
-                    for(int dotN=0;dotN < noteResolution.dots;dotN++) {
-                      valueTagSelfClosing("dot", {}); newline();
-                    }
+                  valueTag("type", noteResolution.noteType, {}); newline();
+                  for(int dotN=0;dotN < noteResolution.dots;dotN++) {
+                    valueTagSelfClosing("dot", {}); newline();
                   }
-                  else {
-                    // we gave up
-                    // valueTag("type", "?", {}); newline();
-                  }
-                  valueTag("voice", event.voice.toString(), {}); newline();
+                                  valueTag("voice", event.voice.toString(), {}); newline();
                   if(!tieMode) {
                     if(duration > 0) {
                       // still more left to write.
@@ -880,18 +842,8 @@ class MusicXMLUtils {
                   beatsRemaining = lastBeats.toDouble();
                 }
 
-                var writeDur = min(beatsRemaining * lastDivision,duration);
+                var writeDur = min(beatsRemaining * lastDivision,duration).toDouble();
                 var noteResolution = resolveNote(writeDur);
-
-                if(noteResolution == null) {
-                  // ruh roh
-                  var backupResolution = resolveNoteFallbackDiscrete(writeDur.toInt());
-
-                  if(backupResolution != null) {
-                    noteResolution = backupResolution;
-                    writeDur = backupResolution.beats;
-                  }
-                }
 
                 curBeat += writeDur / lastDivision;
                 beatsRemaining = max(0,curMeasureNum * lastBeats - curBeat);
@@ -899,17 +851,11 @@ class MusicXMLUtils {
                 
                 beginTag("note",{});
                   valueTag("duration", writeDur.toStringAsFixed(0), {}); newline();
-                  if(noteResolution != null) {
-                    valueTag("type", noteResolution.noteType, {}); newline();
-                    for(int dotN=0;dotN < noteResolution.dots;dotN++) {
-                      valueTagSelfClosing("dot", {}); newline();
-                    }
+                  valueTag("type", noteResolution.noteType, {}); newline();
+                  for(int dotN=0;dotN < noteResolution.dots;dotN++) {
+                    valueTagSelfClosing("dot", {}); newline();
                   }
-                  else {
-                    // we gave up
-                    // valueTag("type", "?", {}); newline();
-                  }
-                  valueTag("voice", event.voice.toString(), {}); newline();
+                                  valueTag("voice", event.voice.toString(), {}); newline();
                   if((event.lyric.length > 0) && !tieMode) {
                     beginTag("lyric",{});
                       valueTag("text", event.lyric, {}); newline();

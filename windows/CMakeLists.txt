@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(muon LANGUAGES CXX)
+project(wuon LANGUAGES CXX)
 
-set(BINARY_NAME "muon")
+set(BINARY_NAME "wuon")
 
 cmake_policy(SET CMP0063 NEW)
 

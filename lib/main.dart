@@ -1,9 +1,9 @@
 import "dart:io";
 
 import "package:flutter/material.dart";
-import 'package:muon/controllers/settings.dart';
-import "package:muon/licenses.dart";
-import "package:muon/editor.dart";
+import 'package:wuon/controllers/settings.dart';
+import "package:wuon/licenses.dart";
+import "package:wuon/editor.dart";
 import 'package:synaps_flutter/synaps_flutter.dart';
 
 import "package:window_size/window_size.dart";
@@ -14,7 +14,7 @@ final appSettings = MuonSettingsController().ctx();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowTitle("Muon Editor");
+    setWindowTitle("wuon");
     setWindowMinSize(Size(1280, 720));
   }
 
@@ -28,15 +28,21 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Rx(() => MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Muon",
+        title: "wuon",
       themeMode: appSettings.darkMode ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
-        primarySwatch: Colors.purple,
-        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
       ),
       darkTheme: ThemeData(
-        primarySwatch: Colors.purple,
-        brightness: Brightness.dark,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
       ),
       home: MuonEditor(),
     ));

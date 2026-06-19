@@ -1,15 +1,14 @@
 import 'dart:async';
 import "dart:io";
 import 'dart:math';
-import 'package:muon/actions/addvoice.dart';
-import 'package:muon/actions/base.dart';
-import 'package:muon/editor.dart';
+import 'package:wuon/actions/base.dart';
+import 'package:wuon/editor.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import "package:dart_midi/dart_midi.dart";
-import "package:muon/controllers/muonnote.dart";
-import "package:muon/controllers/muonvoice.dart";
-import "package:muon/serializable/muon.dart";
-import "package:muon/logic/musicxml.dart";
+import "package:dart_midi_pro/dart_midi_pro.dart";
+import "package:wuon/controllers/muonnote.dart";
+import "package:wuon/controllers/muonvoice.dart";
+import "package:wuon/serializable/muon.dart";
+import "package:wuon/logic/musicxml.dart";
 import "package:path/path.dart" as p;
 
 part "muonproject.g.dart";
@@ -94,13 +93,11 @@ class MuonProjectController with WeakEqualityController {
 
   /// Internal timer registered by this class to track the playhead
   /// TODO: this should be removed once FFI is complete
-  Timer playbackTimer;
+  Timer? playbackTimer;
 
   void dispose() {
-    if(playbackTimer != null) {
-      playbackTimer.cancel();
-      playbackTimer = null;
-    }
+    playbackTimer?.cancel();
+    playbackTimer = null;
   }
 
   // ACTIONS HELPERS
@@ -216,7 +213,7 @@ class MuonProjectController with WeakEqualityController {
 
     for(final voice in this.voices) {
       if(voice.audioPlayer != null) {
-        voice.audioPlayer.dispose();
+        voice.audioPlayer?.dispose();
         voice.audioPlayer = null;
       }
     }
@@ -225,7 +222,7 @@ class MuonProjectController with WeakEqualityController {
 
     this.selectedNotes.clear();
     for(final selectedNoteKey in controller.selectedNotes.keys) {
-      this.selectedNotes[selectedNoteKey] = controller.selectedNotes[selectedNoteKey];
+      this.selectedNotes[selectedNoteKey] = controller.selectedNotes[selectedNoteKey]!;
     }
 
     this.copiedNotes.clear();
@@ -244,8 +241,8 @@ class MuonProjectController with WeakEqualityController {
     playbackTimer = Timer.periodic(Duration(milliseconds: 1),(Timer t) async {
       if(this.voices.length > this.currentVoiceID) {
         if(this.internalStatus == "playing") {
-          MuonVoiceController longestVoice;
-
+          MuonVoiceController? longestVoice;
+ 
           for(final voice in this.voices) {
             if(voice.audioPlayer != null) {
               if(voice.audioPlayerDuration != null) {
@@ -260,9 +257,9 @@ class MuonProjectController with WeakEqualityController {
               }
             }
           }
-
+ 
           if(longestVoice != null) {
-            dynamic posDur = await longestVoice.audioPlayer.getPosition();
+            dynamic posDur = await longestVoice.audioPlayer?.position;
             if(posDur is Duration) {
               int curPos = posDur.inMilliseconds;
 
@@ -396,23 +393,24 @@ class MuonProjectController with WeakEqualityController {
         var voice = MuonVoiceController().ctx()..project = this;
 
         int timeUnitMulFactor = 1;
-        if(this.timeUnitsPerBeat != midi.header.ticksPerBeat) {
+        final ticksPerBeat = midi.header.ticksPerBeat ?? 480;
+        if(this.timeUnitsPerBeat != ticksPerBeat) {
           timeUnitMulFactor = this.timeUnitsPerBeat;
-          this.setTimeUnitsPerBeat(this.timeUnitsPerBeat * midi.header.ticksPerBeat);
+          this.setTimeUnitsPerBeat(this.timeUnitsPerBeat * ticksPerBeat);
         }
 
         final midiNotes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
 
         var curTime = 0;
         var lastNoteOnTime = 0;
-        NoteOnEvent lastNoteOn;
+        NoteOnEvent? lastNoteOn;
         for(final midiEvent in midi.tracks[0]) {
           curTime += midiEvent.deltaTime;
 
           switch(midiEvent.type) {
             case "setTempo": {
               if(importTimeMetadata) {
-                SetTempoEvent tempoEvent = midiEvent;
+                SetTempoEvent tempoEvent = midiEvent as SetTempoEvent;
 
                 this.bpm = 60 / (tempoEvent.microsecondsPerBeat / 1000);
                 this.markAllVoicesAsChanged();
@@ -421,7 +419,7 @@ class MuonProjectController with WeakEqualityController {
             }
             case "timeSignature": {
               if(importTimeMetadata) {
-                TimeSignatureEvent timeSigEvent = midiEvent;
+                TimeSignatureEvent timeSigEvent = midiEvent as TimeSignatureEvent;
 
                 this.beatsPerMeasure = timeSigEvent.numerator;
                 this.beatValue = timeSigEvent.denominator;
@@ -442,7 +440,7 @@ class MuonProjectController with WeakEqualityController {
                 lastNoteOn = null;
               }
 
-              NoteOnEvent noteOnEvent = midiEvent;
+              NoteOnEvent noteOnEvent = midiEvent as NoteOnEvent;
               lastNoteOn = noteOnEvent;
               lastNoteOnTime = curTime;
 
@@ -570,13 +568,8 @@ class MuonProjectController with WeakEqualityController {
       if(i != (voice.notes.length - 1)) {
         final nextNote = voice.notes[i + 1];
         if(nextNote.startAtTime < lastNoteEndTime) {
-          // someone has been naughty and stacked notes on top of each other
-          // so we will lop the end off the last note
-
-          if(note != null) {
-            noteEvent.duration -= lastNoteEndTime - nextNote.startAtTime;
-            musicXML.recalculateAbsoluteTime();
-          }
+          noteEvent.duration -= lastNoteEndTime - nextNote.startAtTime;
+          musicXML.recalculateAbsoluteTime();
         }
       }
 
@@ -594,14 +587,14 @@ class MuonProjectController with WeakEqualityController {
     serializable.save();
   }
 
-  static MuonProjectController loadFromDir(String projectDir,String projectFileName) {
+  static MuonProjectController? loadFromDir(String projectDir,String projectFileName) {
     final serializable = MuonProject.loadFromDir(projectDir,projectFileName);
-    return MuonProjectController.fromSerializable(serializable);
+    return serializable == null ? null : MuonProjectController.fromSerializable(serializable);
   }
 
-  static MuonProjectController loadFromFile(String projectFile) {
+  static MuonProjectController? loadFromFile(String projectFile) {
     final serializable = MuonProject.loadFromFile(projectFile);
-    return MuonProjectController.fromSerializable(serializable);
+    return serializable == null ? null : MuonProjectController.fromSerializable(serializable);
   }
 
   // SERIALIZATION INTERFACE

@@ -1,19 +1,8 @@
-import 'package:muon/actions/base.dart';
-import 'package:muon/controllers/muonnote.dart';
-import 'package:muon/controllers/muonvoice.dart';
+part of 'base.dart';
 
 class PasteNoteAction extends MuonAction {
-  String get title {
-    if(notes.length > 1) {
-      return "Paste notes";
-    }
-    else {
-      return "Paste note";
-    }
-  }
-  String get subtitle {
-    return "";
-  }
+  String get title => notes.length > 1 ? "Paste notes" : "Paste note";
+  String get subtitle => "";
 
   final List<MuonNoteController> notes;
 
@@ -30,7 +19,7 @@ class PasteNoteAction extends MuonAction {
       note.voice.notes.remove(note);
     }
   }
-  
+
   void markVoiceModified() {
     for(final note in notes) {
       note.voice.hasChangedNoteData = true;

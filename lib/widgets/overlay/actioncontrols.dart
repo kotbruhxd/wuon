@@ -1,16 +1,16 @@
 
 import 'package:flutter/material.dart';
-import 'package:muon/actions/base.dart';
+import 'package:wuon/actions/base.dart';
 import "package:synaps_flutter/synaps_flutter.dart";
-import 'package:muon/controllers/muonvoice.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/logic/helpers.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/logic/helpers.dart';
 
 class MuonActionControls extends StatelessWidget {
   const MuonActionControls({
-    Key key,
-    @required this.action,
-    @required this.isPerformed,
+    Key? key,
+    required this.action,
+    required this.isPerformed,
   }) : super(key: key);
 
   final MuonAction action;
@@ -58,10 +58,10 @@ class MuonActionControls extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color: isPerformed ? themeData.buttonColor.withOpacity(0.9) : themeData.buttonColor.withOpacity(0.3),
+        color: isPerformed ? themeData.colorScheme.primary.withValues(alpha: 0.9) : themeData.colorScheme.primary.withValues(alpha: 0.3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             blurRadius: 1,
             spreadRadius: 1,
           ),

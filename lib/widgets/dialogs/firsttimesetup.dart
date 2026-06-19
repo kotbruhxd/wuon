@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 import 'package:flutter/material.dart';
-import 'package:muon/editor.dart';
-import 'package:muon/main.dart';
-import 'package:muon/serializable/settings.dart';
+import 'package:wuon/editor.dart';
+import 'package:wuon/main.dart';
+import 'package:wuon/serializable/settings.dart';
 
 class MuonFirstTimeSetupDialog extends StatelessWidget {
   @override
@@ -18,19 +18,19 @@ class MuonFirstTimeSetupDialog extends StatelessWidget {
         content: SingleChildScrollView(
           child: ListBody(
             children: <Widget>[
-              Text("Before you start using Muon, we need to do some housekeeping!"),
+              Text("Before you start using wuon, we need to do some housekeeping!"),
               SizedBox(height: 15,),
-              RaisedButton(
+              ElevatedButton(
                 child: Text("Choose Neutrino SDK Folder Location"),
                 onPressed: () {
                   FileSelectorPlatform.instance.getDirectoryPath(
                     confirmButtonText: "Open Neutrino SDK",
                   )
-                  .catchError((err) {print("internal file browser error: " + err.toString());}) // oh wow i am so naughty
+                  .catchError((err) {print("internal file browser error: " + err.toString()); return null;}) // oh wow i am so naughty
                   .then((value) {
                     if(value != null) {
                       if(Directory(value).existsSync()) {
-                        if(File(value + "/bin/NEUTRINO.exe").existsSync() || File(value + "/bin/NEUTRINO").existsSync()) {
+                        if(File(value + "/bin/NEUTRINO.exe").existsSync() || File(value + "/bin/NEUTRINO").existsSync() || File(value + "/bin/neutrino").existsSync()) {
                           settings.neutrinoDir = value;
                           settings.save();
                           return;
@@ -42,7 +42,7 @@ class MuonFirstTimeSetupDialog extends StatelessWidget {
 
                       ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(backgroundColor: Theme.of(context).errorColor,
+                        SnackBar(backgroundColor: Theme.of(context).colorScheme.error,
                           content: new Text("Error: That doesn't seem like a valid NEUTRINO directory!"),
                           duration: new Duration(seconds: 5),
                         )
@@ -70,7 +70,7 @@ class MuonFirstTimeSetupDialog extends StatelessWidget {
               if(settings.neutrinoDir == "") {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(backgroundColor: Theme.of(context).errorColor,
+                  SnackBar(backgroundColor: Theme.of(context).colorScheme.error,
                     content: new Text("Error: Please choose a valid directory for the NEUTRINO library!"),
                     duration: new Duration(seconds: 5),
                   )

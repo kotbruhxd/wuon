@@ -1,18 +1,8 @@
-import 'package:muon/actions/base.dart';
-import 'package:muon/controllers/muonnote.dart';
+part of 'base.dart';
 
 class CutNoteAction extends MuonAction {
-  String get title {
-    if(notes.length > 1) {
-      return "Cut notes";
-    }
-    else {
-      return "Cut note";
-    }
-  }
-  String get subtitle {
-    return "";
-  }
+  String get title => notes.length > 1 ? "Cut notes" : "Cut note";
+  String get subtitle => "";
 
   final List<MuonNoteController> notes;
 
@@ -29,7 +19,7 @@ class CutNoteAction extends MuonAction {
       note.voice.addNoteInternal(note);
     }
   }
-  
+
   void markVoiceModified() {
     for(final note in notes) {
       note.voice.hasChangedNoteData = true;

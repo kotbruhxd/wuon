@@ -1,18 +1,23 @@
-import 'package:synaps_flutter/synaps_flutter.dart';
+import 'dart:math';
 
-abstract class MuonAction {
-  /// Human readable title of the action
+import 'package:wuon/controllers/muonnote.dart';
+import 'package:wuon/controllers/muonvoice.dart';
+
+part 'addnote.dart';
+part 'addvoice.dart';
+part 'changevoice.dart';
+part 'cutnote.dart';
+part 'deletenote.dart';
+part 'movenote.dart';
+part 'pastenote.dart';
+part 'removevoice.dart';
+part 'renamenote.dart';
+part 'retimenote.dart';
+
+sealed class MuonAction {
   String get title;
-  
-  /// Human readable subtitle of the action
   String get subtitle;
-
-  /// Perform the action
   void perform();
-
-  /// Undo the action
   void undo();
-
-  /// Mark a voice as modified
   void markVoiceModified() {}
 }

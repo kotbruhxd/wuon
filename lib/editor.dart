@@ -5,19 +5,19 @@ import "dart:math";
 import "package:flutter/material.dart";
 import "package:flutter/rendering.dart";
 import "package:flutter/services.dart";
-import "package:muon/controllers/muonnote.dart";
-import "package:muon/controllers/muonproject.dart";
-import "package:muon/controllers/muonvoice.dart";
-import "package:muon/logic/japanese.dart";
-import 'package:muon/pianoroll/modules/notes.dart';
-import 'package:muon/pianoroll/modules/waila.dart';
-import "package:muon/pianoroll/pianoroll.dart";
-import "package:muon/serializable/settings.dart";
+import "package:wuon/controllers/muonnote.dart";
+import "package:wuon/controllers/muonproject.dart";
+import "package:wuon/controllers/muonvoice.dart";
+import "package:wuon/logic/japanese.dart";
+import 'package:wuon/pianoroll/modules/notes.dart';
+import 'package:wuon/pianoroll/modules/waila.dart';
+import "package:wuon/pianoroll/pianoroll.dart";
+import "package:wuon/serializable/settings.dart";
 import "package:file_selector_platform_interface/file_selector_platform_interface.dart";
-import 'package:muon/widgets/dialogs/firsttimesetup.dart';
-import 'package:muon/widgets/dialogs/welcome.dart';
-import 'package:muon/widgets/overlay/appbar.dart';
-import 'package:muon/widgets/overlay/sidebar.dart';
+import 'package:wuon/widgets/dialogs/firsttimesetup.dart';
+import 'package:wuon/widgets/dialogs/welcome.dart';
+import 'package:wuon/widgets/overlay/appbar.dart';
+import 'package:wuon/widgets/overlay/sidebar.dart';
 import "package:path/path.dart" as p;
 
 final currentProject = MuonProjectController.defaultProject();
@@ -53,26 +53,28 @@ class MuonEditor extends StatefulWidget {
     return FileSelectorPlatform.instance.openFile(
       confirmButtonText: "Open Project",
       acceptedTypeGroups: [XTypeGroup(
-        label: "Muon Project Files",
+        label: "wuon Project Files",
         extensions: ["json"],
       )],
     )
     .then((value) {
       if(value != null) {
         final proj = MuonProjectController.loadFromFile(value.path);
-        currentProject.updateWith(proj);
-
-        return true;
+        if(proj != null) {
+          currentProject.updateWith(proj);
+          return true;
+        }
       }
     })
     .catchError((err) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: Theme.of(context).errorColor,
+          backgroundColor: Theme.of(context).colorScheme.error,
           content: new Text("internal error: " + err.toString()),
           duration: new Duration(seconds: 10),
         )
       );
+      return null;
     }); // oh wow i am so naughty
   }
 
@@ -82,7 +84,7 @@ class MuonEditor extends StatefulWidget {
     return FileSelectorPlatform.instance.getSavePath(
       confirmButtonText: "Create Project",
       acceptedTypeGroups: [XTypeGroup(
-        label: "Muon Project Files",
+        label: "wuon Project Files",
         extensions: ["json"],
       )],
       suggestedName: "project.json",
@@ -100,7 +102,7 @@ class MuonEditor extends StatefulWidget {
         return true;
       }
     })
-    .catchError((err) {print("internal error: " + err.toString());}); // oh wow i am so naughty
+    .catchError((err) {print("internal error: " + err.toString()); return null;}); // oh wow i am so naughty
   }
 
   /// Compiles all voices, and then plays audio from the playhead's
@@ -114,7 +116,7 @@ class MuonEditor extends StatefulWidget {
     List<Future<void>> compileRes = [];
     currentProject.internalStatus = "compiling";
     for(final voice in currentProject.voices) {
-      compileRes.add(_compileVoiceInternal(voice));
+      compileRes.add(compileVoice(voice));
     }
     await Future.wait(compileRes);
     currentProject.internalStatus = "idle";
@@ -143,7 +145,7 @@ class MuonEditor extends StatefulWidget {
         if(!errorShown) {
           errorShown = true;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(backgroundColor: Theme.of(context).errorColor,
+            SnackBar(backgroundColor: Theme.of(context).colorScheme.error,
               content: new Text("Unable to play audio!"),
               duration: new Duration(seconds: 5),
             )
@@ -156,40 +158,39 @@ class MuonEditor extends StatefulWidget {
     }
   }
 
-  static Future<void> _compileVoiceInternal(MuonVoiceController voice) async {
+  static Future<void> compileVoice(MuonVoiceController voice) async {
     if(voice.audioPlayer != null) {
-      await voice.audioPlayer.unload();
+      await voice.audioPlayer?.unload();
     }
     
     if(voice.hasChangedNoteData) {
       voice.hasChangedNoteData = false;
       await voice.makeLabels();
       await voice.runNeutrino();
-      await voice.vocodeWORLD();
     }
   }
 
-  /// Compiles all voices with NSF
+  /// Compiles all voices
   /// 
   /// Will show snackbars on progress
   /// 
-  static Future<void> compileVoiceInternalNSF(BuildContext context) async {
-    currentProject.internalStatus = "compiling_nsf";
+  static Future<void> compileVoiceInternalAll(BuildContext context) async {
+    currentProject.internalStatus = "compiling";
     int voiceID = 0;
     for(final voice in currentProject.voices) {
       voiceID++;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: new Text("Compiling voice " + voiceID.toString() + " with NSF..."),
+          content: new Text("Compiling voice " + voiceID.toString() + "..."),
           duration: new Duration(seconds: 2),
         )
       );
-      await voice.vocodeNSF();
+      await compileVoice(voice);
     }
     currentProject.internalStatus = "idle";
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: new Text("NSF complete!"),
+        content: new Text("Compilation complete!"),
         duration: new Duration(seconds: 2),
       )
     );
@@ -197,21 +198,19 @@ class MuonEditor extends StatefulWidget {
 
   static Future<bool> _playVoiceInternal(MuonVoiceController voice,Duration playPos,double volume) async {
     if(voice.audioPlayer != null) {
-      await voice.audioPlayer.unload();
+      await voice.audioPlayer?.unload();
     }
 
     final audioPlayer = await voice.getAudioPlayer(playPos);
 
-    audioPlayer.setVolume(volume);
-    await audioPlayer.setPosition(playPos);
-    final suc = await audioPlayer.play();
-
-    if(suc) {
+    if(audioPlayer != null) {
+      await audioPlayer.setVolume(volume);
+      await audioPlayer.setPosition(playPos);
+      await audioPlayer.play();
       return true;
     }
-    else {
-      return false;
-    }
+
+    return false;
   }
 
   /// Stops any currently playing audio, if there is any.
@@ -219,7 +218,7 @@ class MuonEditor extends StatefulWidget {
   static Future<void> stopAudio() async {
     for(final voice in currentProject.voices) {
       if(voice.audioPlayer != null) {
-        voice.audioPlayer.unload();
+        await voice.audioPlayer?.unload();
       }
     }
     if(currentProject.internalStatus == "playing") {
