@@ -742,21 +742,21 @@ packages:
   synaps:
     dependency: transitive
     description:
-      path: "../synaps"
+      path: "../wsynaps"
       relative: true
     source: path
     version: "0.0.0"
   synaps_flutter:
     dependency: "direct main"
     description:
-      path: "../synaps/flutter"
+      path: "../wsynaps/flutter"
       relative: true
     source: path
     version: "0.0.2"
   synaps_generator:
     dependency: "direct dev"
     description:
-      path: "../synaps/generator"
+      path: "../wsynaps/generator"
       relative: true
     source: path
     version: "0.0.0"

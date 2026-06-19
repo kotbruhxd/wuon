@@ -22,7 +22,7 @@ dependencies:
   kana_kit: ^2.0.0
   path: ^1.7.0
   flutter_audio_desktop:
-    path: ../flutter_audio_desktop
+    path: ../wfad
   synaps_flutter:
     path: ../wsynaps/flutter
 
