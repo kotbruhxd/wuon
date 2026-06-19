@@ -26,16 +26,18 @@ wuon is a desktop application for composing vocal parts using a piano roll inter
 
 ## Setup
 
-1.  Install NEUTRINO and place voice models in `NEUTRINO/model/`
+1.  Install NEUTRINO and place voice modegit clone https://github.com/kotbruhxd/wsynapsls in `NEUTRINO/model/`
 2.  Launch wuon — on first run, you'll be prompted to select the NEUTRINO directory
 3.  Create or open a project and start composing
 
 ### Build from source
 
 ```sh
+git clone https://github.com/kotbruhxd/wuon
+git clone https://github.com/kotbruhxd/wsynaps # not in the wuon directory!!
+cd wuon
 flutter pub get
 flutter build linux   # or macos / windows
-git clone https://github.com/kotbruhxd/wsynaps #
 ```
 
 The binary will be at `build/linux/x64/release/bundle/wuon` change the linux to your os eg, windows.
