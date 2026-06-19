@@ -35,9 +35,10 @@ wuon is a desktop application for composing vocal parts using a piano roll inter
 ```sh
 flutter pub get
 flutter build linux   # or macos / windows
+git clone https://github.com/kotbruhxd/wsynaps #
 ```
 
-The binary will be at `build/linux/x64/release/bundle/wuon`.
+The binary will be at `build/linux/x64/release/bundle/wuon` change the linux to your os eg, windows.
 
 ### NEUTRINO directory structure
 
