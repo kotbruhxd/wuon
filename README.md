@@ -1,68 +1,84 @@
-# Muon
+# wuon
 
-A GUI for the [Neutrino neural singing synthesizer](https://n3utrino.work), written in Flutter (and uses [synaps](https://github.com/SwadicalRag/synaps)!).
+A cross-platform UTAU-like singing synthesizer frontend built with Flutter.
 
-## Eyecandy / screenshots
+Fork of [Muon](https://github.com/SwadicalRag/muon) (end of life).
 
-### ~~Eye-burning~~ Light mode
-![Light UI](eyecandy/light_ui.png)
+## Overview
 
-### Dark mode
-![Dark UI](eyecandy/dark_ui.png)
+wuon is a desktop application for composing vocal parts using a piano roll interface and rendering them through the [NEUTRINO](https://studio-neutrino.com/) singing synthesis engine. It supports multiple voice models, MusicXML import/export, and real-time audio playback.
 
-### Features
+## Features
 
-#### Seamless romaji -> hiragana voice editing
-![Lyric editing](eyecandy/lyric_editing.png)
+- Piano roll editor with note input, selection, move, resize, delete
+- Multiple voice tracks with per-voice model selection
+- NEUTRINO integration for high-quality singing synthesis
+- MusicXML export to third-party tools
+- MIDI file import via MusicXML conversion
+- Project save/load (JSON format)
+- Dark/light theme
+- Cross-platform (Linux, Windows, macOS)
 
-#### Multiple voices rendered in parallel
-![Multiple voices](eyecandy/multi_voice.png)
+## Prerequisites
 
-#### Undo/Redo Actions Menu
-![Undo and Redo](eyecandy/undo_redo.png)
+- [NEUTRINO](https://studio-neutrino.com/) (Tau v3.2.2 or compatible) with voice model directories
+- [Flutter](https://flutter.dev/) SDK 3.0+ (for development)
 
-#### Automatic voice model listing and on-the-fly changing
-![Voice Model Changing](eyecandy/voice_model_change.png)
+## Setup
 
-#### MIDI/MusicXML import
-![MIDI Import](eyecandy/midi_import.png)
-![MusicXML Import](eyecandy/musicxml_import.png)
+1.  Install NEUTRINO and place voice models in `NEUTRINO/model/`
+2.  Launch wuon — on first run, you'll be prompted to select the NEUTRINO directory
+3.  Create or open a project and start composing
 
+### Build from source
+
+```sh
+flutter pub get
+flutter build linux   # or macos / windows
+```
+
+The binary will be at `build/linux/x64/release/bundle/wuon`.
+
+### NEUTRINO directory structure
+
+```
+NEUTRINO/
+├── bin/
+│   ├── neutrino
+│   ├── musicXMLtoLabel
+│   └── ...
+├── model/
+│   ├── MERROW/
+│   ├── NAKUMO/
+│   └── ...
+└── settings/
+    └── dic/
+```
 
 ## Usage
 
-Coming soon!
+- **Space** — play/stop
+- **Ctrl+S** — save project
+- **Ctrl+Z** — undo
+- **Ctrl+Y** — redo
+- Render button — compiles all voices and plays from playhead
 
-## Changelog
+## Project structure
 
-### [09/01/2021] 0.0.4 - Undo/Redo!
- - Added undos/redos
- - Voices now intelligently cache their audio until something in that voice gets edited
- - Fixed some minor bugs with reactivity
+```
+lib/
+├── actions/        # Undo/redo actions
+├── controllers/    # Reactive state controllers (synaps)
+├── logic/          # Helpers, MusicXML, Japanese text utils
+├── pianoroll/      # Piano roll widget + modules
+├── serializable/   # Data models (JSON serialization)
+└── widgets/        # UI components (appbar, sidebar, dialogs)
+```
 
-### [08/01/2021] 0.0.3 - Minimum releasable candidate
- - Cleaned up code, abstracted pianoroll to facilitate any future extensions (e.g. f0/mgc editing)
- - Upgraded to use the synaps state management library (and as a result cleaned up more code!)
- - Fixed bugs with note dragging across semitones
+## Acknowledgments
 
-### [05/01/2021] 0.0.2 - Proof of concept
- - Cleaned up code, documented many functions and classes
- - Fixed a bug with the flutter_desktop_audio plugin that caused deadlocks
-
-### [04/01/2021] 0.0.1 - Proof of concept
- - Basic functionality implemented
-
-## Building
-
-Building Steps: 
-1. Clone this repository somewhere
-2. `flutter pub get` -> gets all packages
-3. `flutter pub run build_runner build` -> build the generated files for json_serializable/synaps
-4. `flutter build windows/macos/linux`
-5. *sigh* just read this https://flutter.dev/desktop#distribution
-
-N.B. I have used a fixed version of flutter_desktop_audio which I do not plan on releasing publicly, because I do not wish to maintain that codebase. I will be replacing that module with my own FFI based audio playback library. Until then, if you want to build this yourself, shoot me a message and I can give you source access to my version of flutter_desktop_audio.
-
-## N.B. I am sorry in advance
-
-This is my first Dart/Flutter project, and I am still learning how the Flutter engine works. Though I can figure out how to write logic for a component, I may not know the best way to do it, and I certainly am not familiar with the best practices for Dart and Flutter. The more code I write, the more will learn, and the more my code quality will improve. I am sorry in advance.
+- [NEUTRINO](https://studio-neutrino.com/) — singing synthesis engine
+- [Muon](https://github.com/SwadicalRag/muon) — original project this was forked from
+- [synaps](https://github.com/SwadicalRag/synaps) — reactive state management
+- [flutter_audio_desktop](https://github.com/SwadicalRag/flutter_audio_desktop) — audio playback
+- [miniaudio](https://miniaud.io/) — audio backend
