@@ -33,6 +33,7 @@ wuon is a desktop application for composing vocal parts using a piano roll inter
 ### Build from source
 
 ```sh
+git clone https://github.com/kotbruhxd/wfad
 git clone https://github.com/kotbruhxd/wuon
 git clone https://github.com/kotbruhxd/wsynaps # not in the wuon directory!!
 cd wuon
