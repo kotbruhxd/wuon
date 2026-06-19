@@ -1,49 +1,54 @@
-# wuon
+<h1 align="center">wuon</h1>
 
-A cross-platform UTAU-like singing synthesizer frontend built with Flutter.
+<p align="center">
+  <i>singing synthesizer frontend — fork of muon (eol)</i>
+</p>
 
-Fork of [Muon](https://github.com/SwadicalRag/muon) (end of life).
+<p align="center">
+  <img src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
+  <img src="https://img.shields.io/badge/dart-%3E%3D3.0-blue">
+  <img src="https://img.shields.io/badge/neutrino-tau_v3.2.2-ff69b4">
+</p>
 
-## Overview
+---
 
-wuon is a desktop application for composing vocal parts using a piano roll interface and rendering them through the [NEUTRINO](https://studio-neutrino.com/) singing synthesis engine. It supports multiple voice models, MusicXML import/export, and real-time audio playback.
+**wuon** is a desktop app for composing vocals with a piano roll and rendering them through [NEUTRINO](https://studio-neutrino.com/). It supports multiple voice models, MIDI import, WAV export, and GPU-accelerated synthesis.
 
-## Features
+## quick start
 
-- Piano roll editor with note input, selection, move, resize, delete
-- Multiple voice tracks with per-voice model selection
-- NEUTRINO integration for high-quality singing synthesis
-- MusicXML export to third-party tools
-- MIDI file import via MusicXML conversion
-- Project save/load (JSON format)
-- Dark/light theme
-- Cross-platform (Linux, Windows, macOS)
-
-## Prerequisites
-
-- [NEUTRINO](https://studio-neutrino.com/) (Tau v3.2.2 or compatible) with voice model directories
-- [Flutter](https://flutter.dev/) SDK 3.0+ (for development)
-
-## Setup
-
-1.  Install NEUTRINO and place voice modegit clone https://github.com/kotbruhxd/wsynapsls in `NEUTRINO/model/`
-2.  Launch wuon — on first run, you'll be prompted to select the NEUTRINO directory
-3.  Create or open a project and start composing
-
-### Build from source
-
-```sh
+```
 git clone https://github.com/kotbruhxd/wfad
+git clone https://github.com/kotbruhxd/wsynaps
 git clone https://github.com/kotbruhxd/wuon
-git clone https://github.com/kotbruhxd/wsynaps # not in the wuon directory!!
 cd wuon
 flutter pub get
-flutter build linux   # or macos / windows
+flutter build linux   # or: macos / windows
 ```
 
-The binary will be at `build/linux/x64/release/bundle/wuon` change the linux to your os eg, windows.
+Point wuon at your NEUTRINO directory on first launch, then start composing.
 
-### NEUTRINO directory structure
+Binary: `build/linux/x64/release/bundle/wuon`
+
+## features
+
+- **piano roll** — add, move, resize, delete notes; click and drag
+- **scroll** — wheel scrolls horizontally (timeline), shift+wheel scrolls vertically (pitch)
+- **zoom** — ctrl+wheel zooms vertically, ctrl+shift+wheel zooms horizontally; zoom overlay in bottom-left corner
+- **play** — compiles all voices automatically, then plays from playhead position
+- **model switching** — change voice model and it re-renders on next play
+- **wav export** — exports all voice WAVs to a directory via the More menu
+- **gpu acceleration** — CUDA auto-detected when available
+- **midi import** — imports standard MIDI files as new voices
+- **projects** — save/load JSON project files
+- **themes** — dark/light mode toggle
+- **controls** — space (play/stop), ctrl+s (save), ctrl+z (undo), ctrl+y (redo)
+
+## requirements
+
+- [NEUTRINO](https://studio-neutrino.com/) (Tau v3.2.2+) with voice models
+- [Flutter](https://flutter.dev/) SDK 3.0+ (to build)
+
+### NEUTRINO layout
 
 ```
 NEUTRINO/
@@ -59,30 +64,22 @@ NEUTRINO/
     └── dic/
 ```
 
-## Usage
-
-- **Space** — play/stop
-- **Ctrl+S** — save project
-- **Ctrl+Z** — undo
-- **Ctrl+Y** — redo
-- Render button — compiles all voices and plays from playhead
-
-## Project structure
+## codebase
 
 ```
 lib/
-├── actions/        # Undo/redo actions
-├── controllers/    # Reactive state controllers (synaps)
-├── logic/          # Helpers, MusicXML, Japanese text utils
-├── pianoroll/      # Piano roll widget + modules
-├── serializable/   # Data models (JSON serialization)
-└── widgets/        # UI components (appbar, sidebar, dialogs)
+├── actions/        undo/redo actions
+├── controllers/    reactive state (wsynaps)
+├── logic/          helpers, musicxml, japanese text
+├── pianoroll/      piano roll widget + modules
+├── serializable/   data models (json)
+└── widgets/        appbar, sidebar, dialogs
 ```
 
-## Acknowledgments
+## credits
 
-- [NEUTRINO](https://studio-neutrino.com/) — singing synthesis engine
-- [Muon](https://github.com/SwadicalRag/muon) — original project this was forked from
-- [synaps](https://github.com/SwadicalRag/synaps) — reactive state management
-- [flutter_audio_desktop](https://github.com/SwadicalRag/flutter_audio_desktop) — audio playback
+- [NEUTRINO](https://studio-neutrino.com/) — synthesis engine
+- [Muon](https://github.com/SwadicalRag/muon) — original project
+- [wsynaps](https://github.com/kotbruhxd/wsynaps) — state management
+- [wfad](https://github.com/kotbruhxd/wfad) — audio playback
 - [miniaudio](https://miniaud.io/) — audio backend

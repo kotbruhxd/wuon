@@ -117,10 +117,7 @@ class MuonVoiceController with WeakEqualityController {
   }
 
   /// Generates f0/melspec/wav files by executing Neutrino
-  /// Requires labels to be already generated, and currently does
-  /// not check whether labels already exist!
-  /// 
-  /// TODO: check if labels exist
+  /// Requires labels to be already generated
   Future<void> runNeutrino() async {
     if(!Directory(project.getProjectFilePath("neutrino/")).existsSync()) {
       Directory(project.getProjectFilePath("neutrino/")).createSync();
@@ -135,7 +132,23 @@ class MuonVoiceController with WeakEqualityController {
     }
 
     final neutrinoDir = MuonHelpers.getRawProgramPath("");
-    await Process.run(
+
+    final cudaPaths = [
+      "${neutrinoDir}bin",
+      "/run/opengl-driver/lib",
+      "/run/opengl-driver/cuda/lib",
+      "/usr/lib/x86_64-linux-gnu",
+      "/usr/local/cuda/lib64",
+      "/usr/lib/nvidia",
+    ];
+
+    final ldPath = [
+      ...cudaPaths.where((p) => Directory(p).existsSync()),
+      if (Platform.environment["LD_LIBRARY_PATH"] != null)
+        ...Platform.environment["LD_LIBRARY_PATH"]!.split(":"),
+    ].join(":");
+
+    final result = await Process.run(
       MuonHelpers.getProgramPath("neutrino"), [
         project.getProjectFilePath("label/full/" + voiceFileName + ".lab"),
         project.getProjectFilePath("label/timing/" + voiceFileName + ".lab"),
@@ -149,12 +162,19 @@ class MuonVoiceController with WeakEqualityController {
         "-t",
       ],
       environment: {
-        "LD_LIBRARY_PATH": "${neutrinoDir}bin:${neutrinoDir}NSF/bin",
+        "LD_LIBRARY_PATH": ldPath,
       },
-    ).then((ProcessResult results) {
-      print(results.stdout);
-      print(results.stderr);
-    });
+    );
+    print("[neutrino stdout] ${result.stdout}");
+    print("[neutrino stderr] ${result.stderr}");
+
+    if (result.stdout.toString().toLowerCase().contains("cuda")) {
+      print("[wuon] GPU acceleration detected");
+    } else if (result.stderr.toString().toLowerCase().contains("cuda")) {
+      print("[wuon] GPU acceleration detected");
+    } else {
+      print("[wuon] No CUDA detected in output — running CPU fallback");
+    }
   }
 
   AudioPlayer? audioPlayer;

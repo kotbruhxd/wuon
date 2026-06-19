@@ -52,36 +52,37 @@ class MuonAppBar extends StatelessWidget implements PreferredSizeWidget {
             MuonEditor.stopAudio();
           },
         ),
-        SizedBox(width: 40,),
-        IconButton(
-          icon: const Icon(Icons.timer),
-          tooltip: "Calculate phoneme labels",
-          onPressed: () {
-            for(final voice in currentProject.voices) {
-              voice.makeLabels();
+        SizedBox(width: 20,),
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          tooltip: "More",
+          onSelected: (value) async {
+            final ctx = context;
+            switch (value) {
+              case "labels":
+                for (final voice in currentProject.voices) {
+                  voice.makeLabels();
+                }
+              case "neutrino":
+                for (final voice in currentProject.voices) {
+                  voice.runNeutrino();
+                }
+              case "export":
+                await MuonEditor.exportAllVoices(ctx);
             }
           },
+          itemBuilder: (_) => [
+            const PopupMenuItem(value: "labels", child: Text("Generate labels only")),
+            const PopupMenuItem(value: "neutrino", child: Text("Generate neutrino only")),
+            const PopupMenuDivider(),
+            const PopupMenuItem(value: "export", child: ListTile(
+              leading: Icon(Icons.file_download),
+              title: Text("Export WAV..."),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+            )),
+          ],
         ),
-        IconButton(
-          icon: const Icon(Icons.music_note),
-          tooltip: "Calculate neutrino data",
-          onPressed: () {
-            for(final voice in currentProject.voices) {
-              voice.runNeutrino();
-            }
-          },
-        ),
-        Rx(() => IconButton(
-          icon: const Icon(Icons.computer),
-          color: currentProject.internalStatus == "compiling_nsf" ? 
-            Colors.yellow : Colors.white,
-          tooltip: "Render audio",
-          onPressed: () async {
-            for(final voice in currentProject.voices) {
-              await MuonEditor.compileVoice(voice);
-            }
-          },
-        )),
         SizedBox(width: 40,),
         Rx(() => IconButton(
             icon: appSettings.darkMode ? const Icon(Icons.lightbulb) : const Icon(Icons.lightbulb_outline),

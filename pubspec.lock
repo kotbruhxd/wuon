@@ -321,7 +321,7 @@ packages:
   flutter_audio_desktop:
     dependency: "direct main"
     description:
-      path: "../flutter_audio_desktop"
+      path: "../wfad"
       relative: true
     source: path
     version: "0.1.0"

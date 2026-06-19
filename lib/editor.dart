@@ -1,5 +1,6 @@
 
 import "dart:async";
+import "dart:io";
 import "dart:math";
 
 import "package:flutter/material.dart";
@@ -226,6 +227,46 @@ class MuonEditor extends StatefulWidget {
     }
     else {
       currentProject.playheadTime = 0;
+    }
+  }
+
+  /// Exports all voice WAVs to a user-selected directory.
+  /// Compiles first if note data has changed.
+  static Future<void> exportAllVoices(BuildContext context) async {
+    if (currentProject.voices.isEmpty) return;
+
+    if (currentProject.voices.any((v) => v.hasChangedNoteData)) {
+      currentProject.internalStatus = "compiling";
+      for (final voice in currentProject.voices) {
+        await compileVoice(voice);
+      }
+      currentProject.internalStatus = "idle";
+    }
+
+    final dir = await FileSelectorPlatform.instance.getDirectoryPath(
+      confirmButtonText: "Export",
+    );
+    if (dir == null) return;
+
+    int exported = 0;
+    for (final voice in currentProject.voices) {
+      final wavPath = voice.project.getProjectFilePath("audio/" + voice.voiceFileName + ".wav");
+      if (!File(wavPath).existsSync()) continue;
+
+      final outName = voice.modelName.isNotEmpty
+          ? "${voice.modelName}_${voice.voiceFileName}.wav"
+          : "${voice.voiceFileName}.wav";
+      await File(wavPath).copy("$dir/$outName");
+      exported++;
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Exported $exported voice(s) to $dir"),
+          duration: Duration(seconds: 4),
+        ),
+      );
     }
   }
 

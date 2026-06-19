@@ -192,9 +192,18 @@ class _PianoRollState extends State<PianoRoll> {
     });
   }
 
-  void clampXY(double renderBoxHeight) {
-    xOffset = min(-2, xOffset);
+  double _songLengthBeats() {
+    double maxBeat = 0;
+    for (final voice in widget.project.voices) {
+      for (final note in voice.notes) {
+        final end = (note.startAtTime + note.duration).toDouble();
+        if (end > maxBeat) maxBeat = end;
+      }
+    }
+    return maxBeat / widget.project.timeUnitsPerBeat;
+  }
 
+  void clampXY(double renderBoxHeight, [double? renderBoxWidth]) {
     double totHeight = renderBoxHeight / yScale;
     yOffset = min(0, yOffset);
 
@@ -203,6 +212,15 @@ class _PianoRollState extends State<PianoRoll> {
       yOffset = min(0, max(-requiredExtraHeight, yOffset));
     } else {
       yOffset = 0;
+    }
+
+    if (renderBoxWidth != null) {
+      const double pixelsPerBeat = 500;
+      final songLen = max(4.0, _songLengthBeats());
+      final maxX = songLen * pixelsPerBeat - renderBoxWidth / xScale;
+      xOffset = min(4.0, max(-maxX, xOffset));
+    } else {
+      xOffset = min(4.0, xOffset);
     }
   }
 
@@ -219,42 +237,41 @@ class _PianoRollState extends State<PianoRoll> {
 
   void onScrollZoomPan(PointerScrollEvent details,BoxConstraints constraints) {
     setState(() {
-      if (isShiftKeyHeld && !isCtrlKeyHeld) {
+      if (isCtrlKeyHeld && isShiftKeyHeld) {
+        // horizontal zoom
+        double targetScaleX = max(
+            0.0625, min(4, xScale - details.scrollDelta.dy / 320));
+        double xPointer = details.localPosition.dx - pianoKeysWidth;
+        double xTarget = (xPointer / xScale - xOffset);
+
+        xScale = targetScaleX;
+        xOffset = -xTarget + xPointer / xScale;
+      }
+      else if (isCtrlKeyHeld) {
+        // vertical zoom
+        double targetScaleY = max(
+            0.25, min(4, yScale - details.scrollDelta.dy / 80));
+        if (((constraints.maxHeight / targetScaleY) <= 1920) ||
+            (details.scrollDelta.dy < 0)) {
+          double yPointer = details.localPosition.dy;
+          double yTarget = (yPointer / yScale - yOffset);
+
+          yScale = targetScaleY;
+          yOffset = -yTarget + yPointer / yScale;
+        }
+      }
+      else if (isShiftKeyHeld) {
+        // vertical scroll (pitch)
+        yOffset = yOffset - details.scrollDelta.dy / yScale;
+        xOffset = xOffset - details.scrollDelta.dx / xScale;
+      }
+      else {
+        // horizontal scroll (timeline) — default wheel behavior
         xOffset = xOffset - details.scrollDelta.dy / xScale;
         yOffset = yOffset - details.scrollDelta.dx / yScale;
-
-        this.clampXY(constraints.maxHeight);
-      } else {
-        if (isShiftKeyHeld) {
-          double targetScaleX = max(
-              0.0625, min(4, xScale - details.scrollDelta.dy / 320));
-          double xPointer = details.localPosition.dx - pianoKeysWidth;
-          double xTarget = (xPointer / xScale - xOffset);
-
-          xScale = targetScaleX;
-          xOffset = -xTarget + xPointer / xScale;
-        }
-        else if (isCtrlKeyHeld) {
-          double targetScaleY = max(
-              0.25, min(4, yScale - details.scrollDelta.dy / 80));
-          if (((constraints.maxHeight / targetScaleY) <= 1920) ||
-              (details.scrollDelta.dy < 0)) {
-            // only attempt scale if it wont look stupid
-            double yPointer = details.localPosition.dy;
-            double yTarget = (yPointer / yScale - yOffset);
-
-            yScale = targetScaleY;
-            yOffset = -yTarget + yPointer / yScale;
-          }
-        }
-
-        if (!isShiftKeyHeld && !isCtrlKeyHeld) {
-          yOffset = yOffset - details.scrollDelta.dy / yScale;
-          xOffset = xOffset - details.scrollDelta.dx / xScale * 2;
-        }
-
-        this.clampXY(constraints.maxHeight);
       }
+
+      this.clampXY(constraints.maxHeight, constraints.maxWidth);
     });
   }
 
@@ -347,7 +364,7 @@ class _PianoRollState extends State<PianoRoll> {
         xOffset = xOffset + details.delta.dx / xScale;
         yOffset = yOffset + details.delta.dy / yScale;
 
-        this.clampXY(constraints.maxHeight);
+        this.clampXY(constraints.maxHeight, constraints.maxWidth);
       });
     }
       else if (pointerMode == _PianoRollPointerMode.SELECTING) {
@@ -448,7 +465,7 @@ class _PianoRollState extends State<PianoRoll> {
 
           // Use the LayoutBuilder's constraints to ensure that the
           // scale/offsets are appropriate for our current window height
-          this.clampXY(constraints.maxHeight);
+          this.clampXY(constraints.maxHeight, constraints.maxWidth);
 
           var rectPainter = PianoRollPainter(widget.project, themeData,
               pianoKeysWidth, xOffset, yOffset, xScale, yScale, selectionRect, curMousePos, widget.modules);
@@ -491,13 +508,63 @@ class _PianoRollState extends State<PianoRoll> {
                 onPointerUp: (details) => onPointerUp(details,controls),
                 onPointerMove: (details) => onPointerMove(details,constraints,controls),
                 onPointerHover: (details) => onPointerHover(details,controls),
-                child: Container(
-                  color: themeData.scaffoldBackgroundColor,
-                  child: RxCustomPaint(
-                    painter: rectPainter,
-                    child: Container(),
-                    willChange: true,
-                  ),
+                child: Stack(
+                  children: [
+                    Container(
+                      color: themeData.scaffoldBackgroundColor,
+                      child: RxCustomPaint(
+                        painter: rectPainter,
+                        child: Container(),
+                        willChange: true,
+                      ),
+                    ),
+                    Positioned(
+                      left: 8,
+                      bottom: 8,
+                      child: Material(
+                        color: themeData.colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.zoom_out, size: 18),
+                              tooltip: "Zoom out vertically",
+                              padding: EdgeInsets.all(6),
+                              constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                              onPressed: () => setState(() {
+                                yScale = max(0.25, yScale - 0.25);
+                                clampXY(constraints.maxHeight, constraints.maxWidth);
+                              }),
+                            ),
+                            Text("${(yScale * 100).round()}%", style: TextStyle(fontSize: 11)),
+                            IconButton(
+                              icon: const Icon(Icons.zoom_in, size: 18),
+                              tooltip: "Zoom in vertically",
+                              padding: EdgeInsets.all(6),
+                              constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                              onPressed: () => setState(() {
+                                yScale = min(4.0, yScale + 0.25);
+                                clampXY(constraints.maxHeight, constraints.maxWidth);
+                              }),
+                            ),
+                            SizedBox(width: 4),
+                            IconButton(
+                              icon: const Icon(Icons.zoom_out_map, size: 18),
+                              tooltip: "Reset zoom",
+                              padding: EdgeInsets.all(6),
+                              constraints: BoxConstraints(minWidth: 32, minHeight: 32),
+                              onPressed: () => setState(() {
+                                xScale = 1;
+                                yScale = 1;
+                                clampXY(constraints.maxHeight, constraints.maxWidth);
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
