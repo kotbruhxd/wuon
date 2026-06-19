@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="eyecandy/icon.png" width="128" height="128" alt="wuon">
+</p>
+
 <h1 align="center">wuon</h1>
 
 <p align="center">
