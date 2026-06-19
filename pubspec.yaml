@@ -24,7 +24,7 @@ dependencies:
   flutter_audio_desktop:
     path: ../flutter_audio_desktop
   synaps_flutter:
-    path: ../synaps/flutter
+    path: ../wsynaps/flutter
 
 dev_dependencies:
   flutter_test:

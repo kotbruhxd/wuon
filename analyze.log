@@ -1,0 +1,331 @@
+Analyzing muon...                                               
+
+  error • The function 'run' isn't defined • integration_test/app_test.dart:14:16 • undefined_function
+warning • Unused import: 'package:muon/controllers/muonvoice.dart' • lib/actions/addnote.dart:3:8 • unused_import
+  error • The method 'dispose' can't be unconditionally invoked because the receiver can be 'null' • lib/actions/addvoice.dart:29:25 • unchecked_use_of_nullable_value
+warning • Unused import: 'package:synaps_flutter/synaps_flutter.dart' • lib/actions/base.dart:1:8 • unused_import
+warning • Unused import: 'package:muon/controllers/muonvoice.dart' • lib/actions/deletenote.dart:3:8 • unused_import
+  error • Non-nullable instance field 'cachedProjectTimeUnitsPerBeat' must be initialized • lib/actions/movenote.dart:50:3 • not_initialized_non_nullable_instance_field
+warning • Unused import: 'package:muon/controllers/muonvoice.dart' • lib/actions/pastenote.dart:3:8 • unused_import
+  error • The method 'dispose' can't be unconditionally invoked because the receiver can be 'null' • lib/actions/removevoice.dart:25:25 • unchecked_use_of_nullable_value
+warning • Unused import: 'dart:math' • lib/actions/renamenote.dart:1:8 • unused_import
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/actions/renamenote.dart:27:20 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/actions/renamenote.dart:33:20 • invalid_assignment
+  error • Non-nullable instance field 'cachedProjectTimeUnitsPerBeat' must be initialized • lib/actions/retimenote.dart:42:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'voice' must be initialized • lib/controllers/muonnote.dart:9:23 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'playbackTimer' must be initialized • lib/controllers/muonproject.dart:97:9 • not_initialized_non_nullable_instance_field
+  error • A value of type 'Null' can't be assigned to a variable of type 'Timer' • lib/controllers/muonproject.dart:101:21 • invalid_assignment
+  error • The method 'dispose' can't be unconditionally invoked because the receiver can be 'null' • lib/controllers/muonproject.dart:217:27 • unchecked_use_of_nullable_value
+  error • A value of type 'bool?' can't be assigned to a variable of type 'bool' • lib/controllers/muonproject.dart:226:45 • invalid_assignment
+warning • The operand can't be 'null', so the condition is always 'true' • lib/controllers/muonproject.dart:249:44 • unnecessary_null_comparison
+  error • The property 'position' can't be unconditionally accessed because the receiver can be 'null' • lib/controllers/muonproject.dart:263:61 • unchecked_use_of_nullable_value
+  error • The argument type 'int?' can't be assigned to the parameter type 'num'.  • lib/controllers/muonproject.dart:399:60 • argument_type_not_assignable
+  error • A value of type 'MidiEvent' can't be assigned to a variable of type 'SetTempoEvent' • lib/controllers/muonproject.dart:413:44 • invalid_assignment
+  error • A value of type 'MidiEvent' can't be assigned to a variable of type 'TimeSignatureEvent' • lib/controllers/muonproject.dart:422:51 • invalid_assignment
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:431:18 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/controllers/muonproject.dart:431:29 • unnecessary_null_comparison
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:433:39 • not_assigned_potentially_non_nullable_local_variable
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:434:32 • not_assigned_potentially_non_nullable_local_variable
+  error • A value of type 'Null' can't be assigned to a variable of type 'NoteOnEvent' • lib/controllers/muonproject.dart:440:30 • invalid_assignment
+  error • A value of type 'MidiEvent' can't be assigned to a variable of type 'NoteOnEvent' • lib/controllers/muonproject.dart:443:41 • invalid_assignment
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:451:18 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/controllers/muonproject.dart:451:29 • unnecessary_null_comparison
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:452:97 • not_assigned_potentially_non_nullable_local_variable
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:454:41 • not_assigned_potentially_non_nullable_local_variable
+  error • The non-nullable local variable 'lastNoteOn' must be assigned before it can be used • lib/controllers/muonproject.dart:455:34 • not_assigned_potentially_non_nullable_local_variable
+  error • A value of type 'Null' can't be assigned to a variable of type 'NoteOnEvent' • lib/controllers/muonproject.dart:461:32 • invalid_assignment
+warning • The operand can't be 'null', so the condition is always 'true' • lib/controllers/muonproject.dart:574:19 • unnecessary_null_comparison
+  error • Non-nullable instance field 'project' must be initialized • lib/controllers/muonvoice.dart:17:25 • not_initialized_non_nullable_instance_field
+warning • The operand can't be 'null', so the condition is always 'true' • lib/controllers/muonvoice.dart:74:30 • unnecessary_null_comparison
+warning • Unused import: 'dart:math' • lib/editor.dart:3:8 • unused_import
+   info • The import of 'package:flutter/rendering.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/editor.dart:6:8 • unnecessary_import
+warning • Unused import: 'package:muon/controllers/muonnote.dart' • lib/editor.dart:8:8 • unused_import
+warning • Unused import: 'package:muon/logic/japanese.dart' • lib/editor.dart:11:8 • unused_import
+warning • This 'onError' handler must return a value assignable to 'bool?', but ends without returning a value • lib/editor.dart:68:23 • body_might_complete_normally_catch_error
+  error • The getter 'errorColor' isn't defined for the type 'ThemeData' • lib/editor.dart:71:46 • undefined_getter
+   info • 'getSavePath' is deprecated and shouldn't be used. Use getSaveLocation instead • lib/editor.dart:82:42 • deprecated_member_use
+warning • This 'onError' handler must return a value assignable to 'bool?', but ends without returning a value • lib/editor.dart:103:23 • body_might_complete_normally_catch_error
+  error • The getter 'errorColor' isn't defined for the type 'ThemeData' • lib/editor.dart:146:57 • undefined_getter
+  error • The method 'unload' can't be unconditionally invoked because the receiver can be 'null' • lib/editor.dart:161:31 • unchecked_use_of_nullable_value
+  error • The method 'unload' can't be unconditionally invoked because the receiver can be 'null' • lib/editor.dart:220:27 • unchecked_use_of_nullable_value
+  error • The argument type 'Map<MuonNoteController, bool>' can't be assigned to the parameter type 'SynapsMap<MuonNoteController, bool>'.  • lib/editor.dart:284:53 • argument_type_not_assignable
+   info • 'isControlPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isControlPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/editor.dart:288:29 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/editor.dart:289:31 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/editor.dart:298:36 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/editor.dart:302:36 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/editor.dart:308:29 • deprecated_member_use
+  error • A value of type 'List<String?>' can't be returned from the method 'alphabetToHiragana' because it has a return type of 'List<String>' • lib/logic/japanese.dart:213:12 • return_of_invalid_type
+  error • Non-nullable instance field 'absoluteTime' must be initialized • lib/logic/musicxml.dart:28:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastDivision' must be initialized • lib/logic/musicxml.dart:28:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastTempo' must be initialized • lib/logic/musicxml.dart:28:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastTimeSignature' must be initialized • lib/logic/musicxml.dart:28:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'time' must be initialized • lib/logic/musicxml.dart:28:3 • not_initialized_non_nullable_instance_field
+  error • A value of type 'MusicXMLEvent' can't be assigned to a variable of type 'MusicXMLEventTempo' • lib/logic/musicxml.dart:30:19 • invalid_assignment
+  error • A value of type 'MusicXMLEvent' can't be assigned to a variable of type 'MusicXMLEventTimeSignature' • lib/logic/musicxml.dart:37:27 • invalid_assignment
+  error • A value of type 'MusicXMLEvent' can't be assigned to a variable of type 'MusicXMLEventDivision' • lib/logic/musicxml.dart:44:22 • invalid_assignment
+  error • Non-nullable instance field 'divisions' must be initialized • lib/logic/musicxml.dart:62:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'tempo' must be initialized • lib/logic/musicxml.dart:71:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'beatType' must be initialized • lib/logic/musicxml.dart:78:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'beats' must be initialized • lib/logic/musicxml.dart:78:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'octave' must be initialized • lib/logic/musicxml.dart:91:7 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'note' must be initialized • lib/logic/musicxml.dart:92:10 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'voice' must be initialized • lib/logic/musicxml.dart:108:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lyric' must be initialized • lib/logic/musicxml.dart:120:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'pitch' must be initialized • lib/logic/musicxml.dart:120:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'noteType' must be initialized • lib/logic/musicxml.dart:134:10 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'dots' must be initialized • lib/logic/musicxml.dart:135:7 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'beats' must be initialized • lib/logic/musicxml.dart:136:10 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastTempo' must be initialized • lib/logic/musicxml.dart:169:22 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastTimeSignature' must be initialized • lib/logic/musicxml.dart:170:30 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastDivision' must be initialized • lib/logic/musicxml.dart:171:25 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastNote' must be initialized • lib/logic/musicxml.dart:172:21 • not_initialized_non_nullable_instance_field
+  error • A value of type 'Null' can't be returned from the method '_getChildElement' because it has a return type of 'Element' • lib/logic/musicxml.dart:335:12 • return_of_invalid_type
+warning • The operand can't be 'null', so the condition is always 'true' • lib/logic/musicxml.dart:340:15 • unnecessary_null_comparison
+  error • A value of type 'String?' can't be returned from the method '_getChildText' because it has a return type of 'String' • lib/logic/musicxml.dart:341:14 • return_of_invalid_type
+warning • The operand can't be 'null', so the condition is always 'true' • lib/logic/musicxml.dart:349:15 • unnecessary_null_comparison
+  error • A value of type 'String?' can't be returned from the method '_getChildAttributeText' because it has a return type of 'String' • lib/logic/musicxml.dart:351:16 • return_of_invalid_type
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:369:54 • argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:372:57 • argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:380:50 • argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:397:51 • argument_type_not_assignable
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:406:45 • argument_type_not_assignable
+warning • The operand can't be 'null', so the condition is always 'false' • lib/logic/musicxml.dart:412:25 • unnecessary_null_comparison
+  error • The argument type 'String?' can't be assigned to the parameter type 'String'.  • lib/logic/musicxml.dart:417:44 • argument_type_not_assignable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/logic/musicxml.dart:420:21 • unnecessary_null_comparison
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:637:31 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:643:33 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:648:33 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:653:33 • invalid_assignment
+warning • Dead code • lib/logic/musicxml.dart:659:7 • dead_code
+  error • A value of type 'Null' can't be returned from the function 'resolveNote' because it has a return type of '_NoteResolution' • lib/logic/musicxml.dart:659:14 • return_of_invalid_type
+warning • The declaration 'resolveNoteFallback' isn't referenced • lib/logic/musicxml.dart:662:21 • unused_element
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:684:33 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:691:33 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:698:33 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/logic/musicxml.dart:705:33 • invalid_assignment
+  error • A value of type 'Null' can't be returned from the function 'resolveNoteFallback' because it has a return type of '_NoteResolution' • lib/logic/musicxml.dart:710:14 • return_of_invalid_type
+warning • The declaration 'resolveNoteFallbackDiscrete' isn't referenced • lib/logic/musicxml.dart:713:21 • unused_element
+warning • The value of the local variable 'rhsRes' isn't used • lib/logic/musicxml.dart:718:11 • unused_local_variable
+warning • Dead code • lib/logic/musicxml.dart:723:7 • dead_code
+  error • A value of type 'Null' can't be returned from the function 'resolveNoteFallbackDiscrete' because it has a return type of '_NoteResolution' • lib/logic/musicxml.dart:723:14 • return_of_invalid_type
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/logic/musicxml.dart:796:50 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/logic/musicxml.dart:856:50 • argument_type_not_assignable
+   info • The import of 'package:flutter/rendering.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/pianoroll/modules/notes.dart:4:8 • unnecessary_import
+warning • Unused import: 'package:muon/editor.dart' • lib/pianoroll/modules/notes.dart:14:8 • unused_import
+  error • Non-nullable instance field '_internalDragFirstNote' must be initialized • lib/pianoroll/modules/notes.dart:35:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'noteDragOriginalData' must be initialized • lib/pianoroll/modules/notes.dart:35:3 • not_initialized_non_nullable_instance_field
+   info • 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required • lib/pianoroll/modules/notes.dart:36:6 • deprecated_member_use
+  error • With null safety, use the 'required' keyword, not the '@required' annotation • lib/pianoroll/modules/notes.dart:36:20 • missing_default_value_for_parameter
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:42:10 • unchecked_use_of_nullable_value
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/notes.dart:72:37 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/notes.dart:72:49 • argument_type_not_assignable
+  error • A value of type 'Null' can't be returned from the method 'getNoteAtScreenPos' because it has a return type of 'MuonNoteController' • lib/pianoroll/modules/notes.dart:78:12 • return_of_invalid_type
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:106:21 • unnecessary_null_comparison
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:117:21 • unnecessary_null_comparison
+   info • 'RawKeyboard' is deprecated and shouldn't be used. Use HardwareKeyboard instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:140:9 • deprecated_member_use
+   info • 'instance' is deprecated and shouldn't be used. Use HardwareKeyboard.instance instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:140:21 • deprecated_member_use
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:145:23 • unnecessary_null_comparison
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:149:40 • unchecked_use_of_nullable_value
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:156:23 • unnecessary_null_comparison
+  error • A value of type 'RenderObject?' can't be assigned to a variable of type 'RenderBox' • lib/pianoroll/modules/notes.dart:160:35 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/pianoroll/modules/notes.dart:205:59 • invalid_assignment
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/pianoroll/modules/notes.dart:226:46 • invalid_assignment
+warning • The operand can't be 'null', so the condition is always 'false' • lib/pianoroll/modules/notes.dart:256:21 • unnecessary_null_comparison
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:264:10 • unchecked_use_of_nullable_value
+warning • The operand can't be 'null', so the condition is always 'false' • lib/pianoroll/modules/notes.dart:271:31 • unnecessary_null_comparison
+   info • 'RawKeyboard' is deprecated and shouldn't be used. Use HardwareKeyboard instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:276:9 • deprecated_member_use
+   info • 'instance' is deprecated and shouldn't be used. Use HardwareKeyboard.instance instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:276:21 • deprecated_member_use
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/notes.dart:285:49 • argument_type_not_assignable
+  error • The property 'startAtTime' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:286:38 • unchecked_use_of_nullable_value
+  error • The property 'duration' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:286:70 • unchecked_use_of_nullable_value
+  error • The property 'note' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:293:125 • unchecked_use_of_nullable_value
+  error • The property 'octave' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:293:148 • unchecked_use_of_nullable_value
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/notes.dart:298:61 • argument_type_not_assignable
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:311:10 • unchecked_use_of_nullable_value
+  error • The property 'duration' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:314:72 • unchecked_use_of_nullable_value
+  error • The property 'startAtTime' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:323:81 • unchecked_use_of_nullable_value
+  error • The property 'note' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:328:68 • unchecked_use_of_nullable_value
+  error • The property 'octave' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:329:70 • unchecked_use_of_nullable_value
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:340:31 • unnecessary_null_comparison
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:347:12 • unchecked_use_of_nullable_value
+  error • The property 'startAtTime' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:349:82 • unchecked_use_of_nullable_value
+  error • The property 'note' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:350:117 • unchecked_use_of_nullable_value
+  error • The property 'octave' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:350:154 • unchecked_use_of_nullable_value
+  error • The property 'duration' can't be unconditionally accessed because the receiver can be 'null' • lib/pianoroll/modules/notes.dart:351:83 • unchecked_use_of_nullable_value
+  error • A value of type 'Null' can't be assigned to a variable of type 'MuonNoteController' • lib/pianoroll/modules/notes.dart:372:30 • invalid_assignment
+   info • 'RawKeyboard' is deprecated and shouldn't be used. Use HardwareKeyboard instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:376:10 • deprecated_member_use
+   info • 'instance' is deprecated and shouldn't be used. Use HardwareKeyboard.instance instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:376:22 • deprecated_member_use
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:395:14 • deprecated_member_use
+   info • 'isControlPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isControlPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:396:17 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:399:19 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:408:24 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:408:74 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:411:29 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:419:14 • unchecked_use_of_nullable_value
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:441:24 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:452:23 • deprecated_member_use
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:470:17 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:472:12 • unchecked_use_of_nullable_value
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:485:22 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:486:29 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:490:12 • unchecked_use_of_nullable_value
+  error • The non-nullable local variable 'lastNote' must be assigned before it can be used • lib/pianoroll/modules/notes.dart:496:10 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:496:19 • unnecessary_null_comparison
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:503:22 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:504:29 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:508:12 • unchecked_use_of_nullable_value
+  error • The non-nullable local variable 'lastNote' must be assigned before it can be used • lib/pianoroll/modules/notes.dart:514:10 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:514:19 • unnecessary_null_comparison
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:523:22 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:524:29 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:528:12 • unchecked_use_of_nullable_value
+  error • The non-nullable local variable 'lastNote' must be assigned before it can be used • lib/pianoroll/modules/notes.dart:534:10 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:534:19 • unnecessary_null_comparison
+   info • 'isKeyPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isLogicalKeyPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:541:22 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/notes.dart:542:29 • deprecated_member_use
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:546:12 • unchecked_use_of_nullable_value
+  error • The non-nullable local variable 'lastNote' must be assigned before it can be used • lib/pianoroll/modules/notes.dart:552:10 • not_assigned_potentially_non_nullable_local_variable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/notes.dart:552:19 • unnecessary_null_comparison
+  error • A nullable expression can't be used as a condition • lib/pianoroll/modules/notes.dart:573:48 • unchecked_use_of_nullable_value
+   info • The import of 'package:flutter/rendering.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/pianoroll/modules/waila.dart:4:8 • unnecessary_import
+   info • The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/pianoroll/modules/waila.dart:5:8 • unnecessary_import
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/modules/waila.dart:27:14 • deprecated_member_use
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/modules/waila.dart:36:21 • unnecessary_null_comparison
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/waila.dart:37:62 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/modules/waila.dart:43:51 • argument_type_not_assignable
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/pianoroll/pianoroll.dart:4:8 • unnecessary_import
+   info • The import of 'package:flutter/rendering.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/pianoroll/pianoroll.dart:7:8 • unnecessary_import
+warning • Unused import: 'package:muon/serializable/muon.dart' • lib/pianoroll/pianoroll.dart:13:8 • unused_import
+  error • Non-nullable instance field 'note' must be initialized • lib/pianoroll/pianoroll.dart:17:10 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'octave' must be initialized • lib/pianoroll/pianoroll.dart:18:7 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'painter' must be initialized • lib/pianoroll/pianoroll.dart:22:20 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'state' must be initialized • lib/pianoroll/pianoroll.dart:23:19 • not_initialized_non_nullable_instance_field
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:29:72 • deprecated_member_use
+  error • Non-nullable instance field '_state' must be initialized • lib/pianoroll/pianoroll.dart:32:19 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field '_painter' must be initialized • lib/pianoroll/pianoroll.dart:34:20 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field '_context' must be initialized • lib/pianoroll/pianoroll.dart:36:16 • not_initialized_non_nullable_instance_field
+  error • A value of type 'Null' can't be assigned to a variable of type '_PianoRollState' • lib/pianoroll/pianoroll.dart:49:14 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'PianoRollPainter' • lib/pianoroll/pianoroll.dart:50:16 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'BuildContext' • lib/pianoroll/pianoroll.dart:51:16 • invalid_assignment
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:79:14 • deprecated_member_use
+   info • 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required • lib/pianoroll/pianoroll.dart:87:6 • deprecated_member_use
+  error • With null safety, use the 'required' keyword, not the '@required' annotation • lib/pianoroll/pianoroll.dart:87:20 • missing_default_value_for_parameter
+  error • The parameter 'onHover' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/pianoroll/pianoroll.dart:88:10 • missing_default_value_for_parameter
+  error • The parameter 'onClick' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/pianoroll/pianoroll.dart:89:10 • missing_default_value_for_parameter
+  error • The parameter 'onSelect' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/pianoroll/pianoroll.dart:90:10 • missing_default_value_for_parameter
+  error • The parameter 'onKey' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/pianoroll/pianoroll.dart:91:10 • missing_default_value_for_parameter
+warning • The value of the field 'RMB_CLICK' isn't used • lib/pianoroll/pianoroll.dart:109:3 • unused_field
+  error • Non-nullable instance field '_firstMouseDownPos' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field '_lastClickTimeDecay' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'curMousePos' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'currentlyDraggingModule' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lastPointerEvent' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'selectionRect' must be initialized • lib/pianoroll/pianoroll.dart:116:3 • not_initialized_non_nullable_instance_field
+   info • 'RawKeyboard' is deprecated and shouldn't be used. Use HardwareKeyboard instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:167:5 • deprecated_member_use
+   info • 'instance' is deprecated and shouldn't be used. Use HardwareKeyboard.instance instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:167:17 • deprecated_member_use
+   info • 'RawKeyboard' is deprecated and shouldn't be used. Use HardwareKeyboard instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:173:5 • deprecated_member_use
+   info • 'instance' is deprecated and shouldn't be used. Use HardwareKeyboard.instance instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:173:17 • deprecated_member_use
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:183:16 • deprecated_member_use
+   info • 'isShiftPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isShiftPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:184:28 • deprecated_member_use
+   info • 'isAltPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isAltPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:185:26 • deprecated_member_use
+   info • 'isControlPressed' is deprecated and shouldn't be used. Use HardwareKeyboard.instance.isControlPressed instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:186:27 • deprecated_member_use
+warning • The operand can't be 'null', so the condition is always 'false' • lib/pianoroll/pianoroll.dart:272:29 • unnecessary_null_comparison
+warning • The operand can't be 'null', so the condition is always 'false' • lib/pianoroll/pianoroll.dart:272:61 • unnecessary_null_comparison
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:279:23 • unnecessary_null_comparison
+warning • The operand can't be 'null', so the condition is always 'false' • lib/pianoroll/pianoroll.dart:313:31 • unnecessary_null_comparison
+  error • The non-nullable local variable 'hitTestPassedModule' must be assigned before it can be used • lib/pianoroll/pianoroll.dart:341:35 • not_assigned_potentially_non_nullable_local_variable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/pianoroll.dart:366:39 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/pianoroll.dart:366:44 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/pianoroll.dart:366:48 • argument_type_not_assignable
+  error • The argument type 'num' can't be assigned to the parameter type 'double'.  • lib/pianoroll/pianoroll.dart:366:54 • argument_type_not_assignable
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:368:28 • unnecessary_null_comparison
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:388:26 • unnecessary_null_comparison
+  error • A value of type 'Null' can't be assigned to a variable of type 'PointerEvent' • lib/pianoroll/pianoroll.dart:396:26 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'Rect' • lib/pianoroll/pianoroll.dart:400:25 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'PianoRollModule' • lib/pianoroll/pianoroll.dart:409:33 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'PointerEvent' • lib/pianoroll/pianoroll.dart:410:26 • invalid_assignment
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:414:25 • unnecessary_null_comparison
+  error • A value of type 'Null' can't be assigned to a variable of type 'Point<num>' • lib/pianoroll/pianoroll.dart:429:30 • invalid_assignment
+  error • A value of type 'Null' can't be assigned to a variable of type 'Timer' • lib/pianoroll/pianoroll.dart:430:31 • invalid_assignment
+   info • 'RawKeyboardListener' is deprecated and shouldn't be used. Use KeyboardListener instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:470:18 • deprecated_member_use
+   info • 'RawKeyEvent' is deprecated and shouldn't be used. Use KeyEvent instead. This feature was deprecated after v3.18.0-2.0.pre • lib/pianoroll/pianoroll.dart:473:21 • deprecated_member_use
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:475:31 • unnecessary_null_comparison
+  error • The operator '*' can't be unconditionally invoked because the receiver can be 'null' • lib/pianoroll/pianoroll.dart:562:28 • unchecked_use_of_nullable_value
+  error • A value of type 'String?' can't be assigned to a variable of type 'String' • lib/pianoroll/pianoroll.dart:650:18 • invalid_assignment
+  error • A value of type 'Color?' can't be assigned to a variable of type 'Color' • lib/pianoroll/pianoroll.dart:718:43 • invalid_assignment
+  error • A value of type 'Color?' can't be assigned to a variable of type 'Color' • lib/pianoroll/pianoroll.dart:719:49 • invalid_assignment
+  error • A value of type 'Color?' can't be assigned to a variable of type 'Color' • lib/pianoroll/pianoroll.dart:737:41 • invalid_assignment
+  error • A value of type 'Color?' can't be assigned to a variable of type 'Color' • lib/pianoroll/pianoroll.dart:738:38 • invalid_assignment
+   info • 'indicatorColor' is deprecated and shouldn't be used. Use TabBarThemeData.indicatorColor instead. This feature was deprecated after v3.28.0-1.0.pre • lib/pianoroll/pianoroll.dart:764:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/pianoroll/pianoroll.dart:764:47 • deprecated_member_use
+warning • The operand can't be 'null', so the condition is always 'true' • lib/pianoroll/pianoroll.dart:805:22 • unnecessary_null_comparison
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/pianoroll/pianoroll.dart:807:42 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/pianoroll/pianoroll.dart:810:36 • deprecated_member_use
+  error • A value of type 'Color?' can't be assigned to a variable of type 'Color' • lib/pianoroll/pianoroll.dart:825:40 • invalid_assignment
+   info • 'nullable' is deprecated and shouldn't be used. Has no effect • lib/serializable/muon.dart:9:19 • deprecated_member_use
+  error • Non-nullable instance field 'duration' must be initialized • lib/serializable/muon.dart:11:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'lyric' must be initialized • lib/serializable/muon.dart:11:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'note' must be initialized • lib/serializable/muon.dart:11:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'octave' must be initialized • lib/serializable/muon.dart:11:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'startAtTime' must be initialized • lib/serializable/muon.dart:11:3 • not_initialized_non_nullable_instance_field
+   info • 'nullable' is deprecated and shouldn't be used. Has no effect • lib/serializable/muon.dart:25:19 • deprecated_member_use
+  error • Non-nullable instance field 'modelName' must be initialized • lib/serializable/muon.dart:27:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'project' must be initialized • lib/serializable/muon.dart:27:3 • not_initialized_non_nullable_instance_field
+   info • 'ignore' is deprecated and shouldn't be used. Use `includeFromJson` and `includeToJson` with a value of `false` instead • lib/serializable/muon.dart:29:12 • deprecated_member_use
+   info • 'nullable' is deprecated and shouldn't be used. Has no effect • lib/serializable/muon.dart:46:19 • deprecated_member_use
+  error • Non-nullable instance field 'projectDir' must be initialized • lib/serializable/muon.dart:48:3 • not_initialized_non_nullable_instance_field
+  error • Non-nullable instance field 'projectFileName' must be initialized • lib/serializable/muon.dart:48:3 • not_initialized_non_nullable_instance_field
+   info • 'ignore' is deprecated and shouldn't be used. Use `includeFromJson` and `includeToJson` with a value of `false` instead • lib/serializable/muon.dart:51:12 • deprecated_member_use
+   info • 'ignore' is deprecated and shouldn't be used. Use `includeFromJson` and `includeToJson` with a value of `false` instead • lib/serializable/muon.dart:55:12 • deprecated_member_use
+  error • A value of type 'Null' can't be returned from the method 'loadFromFile' because it has a return type of 'MuonProject' • lib/serializable/muon.dart:92:12 • return_of_invalid_type
+  error • A value of type 'Null' can't be returned from the method 'loadFromDir' because it has a return type of 'MuonProject' • lib/serializable/muon.dart:100:12 • return_of_invalid_type
+   info • 'nullable' is deprecated and shouldn't be used. Has no effect • lib/serializable/settings.dart:8:19 • deprecated_member_use
+  error • A value of type 'Null' can't be returned from the method 'loadFromFile' because it has a return type of 'MuonSettings' • lib/serializable/settings.dart:32:12 • return_of_invalid_type
+  error • The method 'RaisedButton' isn't defined for the type 'MuonFirstTimeSetupDialog' • lib/widgets/dialogs/firsttimesetup.dart:23:15 • undefined_method
+   info • 'getDirectoryPath' is deprecated and shouldn't be used. Use getDirectoryPathWithOptions instead • lib/widgets/dialogs/firsttimesetup.dart:26:49 • deprecated_member_use
+warning • This 'onError' handler must return a value assignable to 'String?', but ends without returning a value • lib/widgets/dialogs/firsttimesetup.dart:29:37 • body_might_complete_normally_catch_error
+  error • The getter 'errorColor' isn't defined for the type 'ThemeData' • lib/widgets/dialogs/firsttimesetup.dart:45:69 • undefined_getter
+  error • The getter 'errorColor' isn't defined for the type 'ThemeData' • lib/widgets/dialogs/firsttimesetup.dart:73:63 • undefined_getter
+  error • The method 'RaisedButton' isn't defined for the type 'MuonWelcomeDialog' • lib/widgets/dialogs/welcome.dart:16:15 • undefined_method
+  error • The method 'RaisedButton' isn't defined for the type 'MuonWelcomeDialog' • lib/widgets/dialogs/welcome.dart:26:15 • undefined_method
+  error • The method 'OutlineButton' isn't defined for the type 'MuonWelcomeDialog' • lib/widgets/dialogs/welcome.dart:50:11 • undefined_method
+warning • Unused import: 'package:synaps_flutter/synaps_flutter.dart' • lib/widgets/overlay/actioncontrols.dart:4:8 • unused_import
+warning • Unused import: 'package:muon/controllers/muonvoice.dart' • lib/widgets/overlay/actioncontrols.dart:5:8 • unused_import
+warning • Unused import: 'package:muon/logic/helpers.dart' • lib/widgets/overlay/actioncontrols.dart:7:8 • unused_import
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/actioncontrols.dart:11:9 • missing_default_value_for_parameter
+   info • 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required • lib/widgets/overlay/actioncontrols.dart:12:6 • deprecated_member_use
+  error • With null safety, use the 'required' keyword, not the '@required' annotation • lib/widgets/overlay/actioncontrols.dart:12:20 • missing_default_value_for_parameter
+   info • 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required • lib/widgets/overlay/actioncontrols.dart:13:6 • deprecated_member_use
+  error • With null safety, use the 'required' keyword, not the '@required' annotation • lib/widgets/overlay/actioncontrols.dart:13:20 • missing_default_value_for_parameter
+  error • The getter 'buttonColor' isn't defined for the type 'ThemeData' • lib/widgets/overlay/actioncontrols.dart:61:40 • undefined_getter
+  error • The getter 'buttonColor' isn't defined for the type 'ThemeData' • lib/widgets/overlay/actioncontrols.dart:61:81 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/actioncontrols.dart:64:33 • deprecated_member_use
+warning • Unused import: 'package:file_selector_platform_interface/file_selector_platform_interface.dart' • lib/widgets/overlay/actionsmenu.dart:4:8 • unused_import
+warning • Unused import: 'package:muon/controllers/muonvoice.dart' • lib/widgets/overlay/actionsmenu.dart:8:8 • unused_import
+warning • Unused import: 'package:muon/logic/musicxml.dart' • lib/widgets/overlay/actionsmenu.dart:10:8 • unused_import
+warning • Unused import: 'package:muon/widgets/overlay/voicecontrols.dart' • lib/widgets/overlay/actionsmenu.dart:11:8 • unused_import
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/actionsmenu.dart:15:9 • missing_default_value_for_parameter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/actionsmenu.dart:95:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/actionsmenu.dart:108:33 • deprecated_member_use
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/appbar.dart:10:9 • missing_default_value_for_parameter
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/projectmetadatamenu.dart:10:9 • missing_default_value_for_parameter
+  error • A value of type 'num' can't be assigned to a variable of type 'int' • lib/widgets/overlay/projectmetadatamenu.dart:67:42 • invalid_assignment
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/sidebar.dart:8:9 • missing_default_value_for_parameter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/sidebar.dart:36:33 • deprecated_member_use
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/voicecontrols.dart:14:9 • missing_default_value_for_parameter
+   info • 'required' is deprecated and shouldn't be used. In Dart 2.12 and later, use the built-in `required` keyword to mark a named parameter as required • lib/widgets/overlay/voicecontrols.dart:15:6 • deprecated_member_use
+  error • With null safety, use the 'required' keyword, not the '@required' annotation • lib/widgets/overlay/voicecontrols.dart:15:20 • missing_default_value_for_parameter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/voicecontrols.dart:38:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/voicecontrols.dart:56:41 • deprecated_member_use
+  error • The method 'dispose' can't be unconditionally invoked because the receiver can be 'null' • lib/widgets/overlay/voicecontrols.dart:94:35 • unchecked_use_of_nullable_value
+  error • The getter 'buttonColor' isn't defined for the type 'ThemeData' • lib/widgets/overlay/voicecontrols.dart:110:26 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/voicecontrols.dart:113:33 • deprecated_member_use
+  error • The parameter 'key' can't have a value of 'null' because of its type, but the implicit default value is 'null' • lib/widgets/overlay/voicesmenu.dart:12:9 • missing_default_value_for_parameter
+warning • This 'onError' handler must return a value assignable to 'XFile?', but ends without returning a value • lib/widgets/overlay/voicesmenu.dart:66:43 • body_might_complete_normally_catch_error
+warning • This 'onError' handler must return a value assignable to 'XFile?', but ends without returning a value • lib/widgets/overlay/voicesmenu.dart:88:43 • body_might_complete_normally_catch_error
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/voicesmenu.dart:105:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/overlay/voicesmenu.dart:118:33 • deprecated_member_use
+warning • Unused import: 'package:flutter/material.dart' • test/widget_test.dart:8:8 • unused_import
+warning • Unused import: 'package:flutter_test/flutter_test.dart' • test/widget_test.dart:9:8 • unused_import
+warning • Unused import: 'package:muon/main.dart' • test/widget_test.dart:11:8 • unused_import
+
