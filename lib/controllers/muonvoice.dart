@@ -168,12 +168,12 @@ class MuonVoiceController with WeakEqualityController {
     print("[neutrino stdout] ${result.stdout}");
     print("[neutrino stderr] ${result.stderr}");
 
-    if (result.stdout.toString().toLowerCase().contains("cuda")) {
+    if (result.stdout.toString().contains("GPU")) {
       print("[wuon] GPU acceleration detected");
-    } else if (result.stderr.toString().toLowerCase().contains("cuda")) {
+    } else if (result.stderr.toString().contains("GPU")) {
       print("[wuon] GPU acceleration detected");
     } else {
-      print("[wuon] No CUDA detected in output — running CPU fallback");
+      print("[wuon] No GPU detected — running CPU fallback");
     }
   }
 

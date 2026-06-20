@@ -8,6 +8,7 @@ import "package:flutter/material.dart";
 import "package:flutter/rendering.dart";
 import "package:flutter/services.dart";
 import "package:wuon/controllers/muonnote.dart";
+import "package:wuon/helpers.dart";
 
 import "package:wuon/controllers/muonproject.dart";
 import "package:wuon/serializable/muon.dart";
@@ -110,6 +111,7 @@ enum _PianoRollPointerMode {
   PANNING,
   DRAGGING,
   SELECTING,
+  NOTE_CREATING,
 }
 
 class _PianoRollState extends State<PianoRoll> {
@@ -117,10 +119,6 @@ class _PianoRollState extends State<PianoRoll> {
   
   // Used by the custompainter
   double pianoKeysWidth = 150.0;
-  double xOffset = -1.0;
-  double yOffset = -1.0;
-  double xScale = 1;
-  double yScale = 1;
 
   // Used by the scrollzoompan controller
   // and also made available to any modules
@@ -138,11 +136,20 @@ class _PianoRollState extends State<PianoRoll> {
   Rect? selectionRect;
   PointerEvent? lastPointerEvent;
 
+  /// Ghost note for click-drag creation
+  Rect? _ghostNoteRect;
+  Point<num>? _noteCreateStartCanvas;
+
   /// Current mouse cursor
   MouseCursor cursor = MouseCursor.defer;
 
   /// Current mouse position
   Point<num>? curMousePos;
+
+  /// Mutable view state shared with the painter for scroll/zoom (avoids full rebuilds)
+  final viewState = _PianoRollViewState();
+  final repaintNotifier = ValueNotifier(0);
+  PianoRollPainter? _painter;
 
   // Why am I doing this, you ask?
   // Because flutter uses arrow keys for Focus traversal
@@ -192,7 +199,11 @@ class _PianoRollState extends State<PianoRoll> {
     });
   }
 
+  double _cachedSongLength = 8.0;
+  bool _songLengthDirty = true;
+
   double _songLengthBeats() {
+    if (!_songLengthDirty) return _cachedSongLength;
     double maxBeat = 0;
     for (final voice in widget.project.voices) {
       for (final note in voice.notes) {
@@ -200,27 +211,33 @@ class _PianoRollState extends State<PianoRoll> {
         if (end > maxBeat) maxBeat = end;
       }
     }
-    return maxBeat / widget.project.timeUnitsPerBeat;
+    _cachedSongLength = maxBeat / widget.project.timeUnitsPerBeat;
+    _songLengthDirty = false;
+    return _cachedSongLength;
+  }
+
+  void _invalidateSongLength() {
+    _songLengthDirty = true;
   }
 
   void clampXY(double renderBoxHeight, [double? renderBoxWidth]) {
-    double totHeight = renderBoxHeight / yScale;
-    yOffset = min(0, yOffset);
+    double totHeight = renderBoxHeight / viewState.yScale;
+    viewState.yOffset = min(0, viewState.yOffset);
 
     if (totHeight < 1920) {
       double requiredExtraHeight = 1920 - totHeight;
-      yOffset = min(0, max(-requiredExtraHeight, yOffset));
+      viewState.yOffset = min(0, max(-requiredExtraHeight, viewState.yOffset));
     } else {
-      yOffset = 0;
+      viewState.yOffset = 0;
     }
 
     if (renderBoxWidth != null) {
       const double pixelsPerBeat = 500;
-      final songLen = max(4.0, _songLengthBeats());
-      final maxX = songLen * pixelsPerBeat - renderBoxWidth / xScale;
-      xOffset = min(4.0, max(-maxX, xOffset));
+      final songLen = max(8.0, _songLengthBeats() + 4);
+      final maxX = songLen * pixelsPerBeat - renderBoxWidth / viewState.xScale;
+      viewState.xOffset = min(4.0, max(-maxX, viewState.xOffset));
     } else {
-      xOffset = min(4.0, xOffset);
+      viewState.xOffset = min(4.0, viewState.xOffset);
     }
   }
 
@@ -235,44 +252,67 @@ class _PianoRollState extends State<PianoRoll> {
     }
   }
 
+  void _createNoteAt(double canvasX, double canvasY, {int? duration}) {
+    if (widget.project.voices.isEmpty ||
+        widget.project.currentVoiceID >= widget.project.voices.length) return;
+
+    final voice = widget.project.voices[widget.project.currentVoiceID];
+    final pitch = PianoRollPainter.pitchMapReverse[
+        (((-canvasY / 20) % 12) + 12) % 12] ?? "C";
+    final octave = 8 - (canvasY / 20 / 12).floor();
+
+    const double pixelsPerBeat = 500;
+    final note = MuonNoteController().ctx();
+    note.note = pitch;
+    note.octave = octave.clamp(1, 8);
+    note.startAtTime = (canvasX / pixelsPerBeat *
+            widget.project.timeUnitsPerBeat)
+        .floor();
+    note.startAtTime = floorToModulus(
+        note.startAtTime, widget.project.timeUnitsPerSubdivision);
+    note.duration = duration ?? widget.project.timeUnitsPerSubdivision;
+
+    voice.addNote(note);
+    widget.project.playheadTime = note.startAtTime / widget.project.timeUnitsPerBeat;
+  }
+
   void onScrollZoomPan(PointerScrollEvent details,BoxConstraints constraints) {
-    setState(() {
-      if (isCtrlKeyHeld && isShiftKeyHeld) {
-        // horizontal zoom
-        double targetScaleX = max(
-            0.0625, min(4, xScale - details.scrollDelta.dy / 320));
-        double xPointer = details.localPosition.dx - pianoKeysWidth;
-        double xTarget = (xPointer / xScale - xOffset);
+    if (isCtrlKeyHeld && isShiftKeyHeld) {
+      // horizontal zoom
+      double targetScaleX = max(
+          0.0625, min(4, viewState.xScale - details.scrollDelta.dy / 320));
+      double xPointer = details.localPosition.dx - pianoKeysWidth;
+      double xTarget = (xPointer / viewState.xScale - viewState.xOffset);
 
-        xScale = targetScaleX;
-        xOffset = -xTarget + xPointer / xScale;
-      }
-      else if (isCtrlKeyHeld) {
-        // vertical zoom
-        double targetScaleY = max(
-            0.25, min(4, yScale - details.scrollDelta.dy / 80));
-        if (((constraints.maxHeight / targetScaleY) <= 1920) ||
-            (details.scrollDelta.dy < 0)) {
-          double yPointer = details.localPosition.dy;
-          double yTarget = (yPointer / yScale - yOffset);
+      viewState.xScale = targetScaleX;
+      viewState.xOffset = -xTarget + xPointer / viewState.xScale;
+    }
+    else if (isCtrlKeyHeld) {
+      // vertical zoom
+      double targetScaleY = max(
+          0.25, min(4, viewState.yScale - details.scrollDelta.dy / 80));
+      if (((constraints.maxHeight / targetScaleY) <= 1920) ||
+          (details.scrollDelta.dy < 0)) {
+        double yPointer = details.localPosition.dy;
+        double yTarget = (yPointer / viewState.yScale - viewState.yOffset);
 
-          yScale = targetScaleY;
-          yOffset = -yTarget + yPointer / yScale;
-        }
+        viewState.yScale = targetScaleY;
+        viewState.yOffset = -yTarget + yPointer / viewState.yScale;
       }
-      else if (isShiftKeyHeld) {
-        // vertical scroll (pitch)
-        yOffset = yOffset - details.scrollDelta.dy / yScale;
-        xOffset = xOffset - details.scrollDelta.dx / xScale;
-      }
-      else {
-        // horizontal scroll (timeline) — default wheel behavior
-        xOffset = xOffset - details.scrollDelta.dy / xScale;
-        yOffset = yOffset - details.scrollDelta.dx / yScale;
-      }
+    }
+    else if (isShiftKeyHeld) {
+      // vertical scroll (pitch)
+      viewState.yOffset = viewState.yOffset - details.scrollDelta.dy / viewState.yScale;
+      viewState.xOffset = viewState.xOffset - details.scrollDelta.dx / viewState.xScale;
+    }
+    else {
+      // horizontal scroll (timeline) — default wheel behavior
+      viewState.xOffset = viewState.xOffset - details.scrollDelta.dy / viewState.xScale;
+      viewState.yOffset = viewState.yOffset - details.scrollDelta.dx / viewState.yScale;
+    }
 
-      this.clampXY(constraints.maxHeight, constraints.maxWidth);
-    });
+    this.clampXY(constraints.maxHeight, constraints.maxWidth);
+    repaintNotifier.value++;
   }
 
   void onPointerHover(PointerHoverEvent details,PianoRollControls controls) {
@@ -344,13 +384,23 @@ class _PianoRollState extends State<PianoRoll> {
           }
         }
         
-        // There is something under the pointer
-        // therefore, start dragging
         if(hitTestPassedModule != null) {
           pointerMode = _PianoRollPointerMode.DRAGGING;
           currentlyDraggingModule = hitTestPassedModule;
           lastPointerEvent = details;
           currentlyDraggingModule!.onDragStart(details,_firstMouseDownPos!);
+        } else if (!isShiftKeyHeld) {
+          // drag on empty space → create note with custom length
+          pointerMode = _PianoRollPointerMode.NOTE_CREATING;
+          final painter = PianoRollPainter(
+            widget.project, Theme.of(context), pianoKeysWidth,
+            viewState, null, null, widget.modules);
+          final canvasStart = painter.screenPosToCanvasPos(_firstMouseDownPos!, false);
+          _noteCreateStartCanvas = canvasStart;
+          _ghostNoteRect = Rect.fromPoints(
+            Offset(canvasStart.x.toDouble(), canvasStart.y.toDouble()),
+            Offset(canvasStart.x.toDouble(), canvasStart.y.toDouble()),
+          );
         }
       }
     }
@@ -359,13 +409,26 @@ class _PianoRollState extends State<PianoRoll> {
       _lastClickCount = 0;
     }
 
-    if (pointerMode == _PianoRollPointerMode.PANNING) {
+    if (pointerMode == _PianoRollPointerMode.NOTE_CREATING) {
       setState(() {
-        xOffset = xOffset + details.delta.dx / xScale;
-        yOffset = yOffset + details.delta.dy / yScale;
-
-        this.clampXY(constraints.maxHeight, constraints.maxWidth);
+        final painter = PianoRollPainter(
+          widget.project, Theme.of(context), pianoKeysWidth,
+          viewState, null, null, widget.modules);
+        final canvasEnd = painter.screenPosToCanvasPos(screenPos, false);
+        final start = _noteCreateStartCanvas!;
+        _ghostNoteRect = Rect.fromLTRB(
+          min(start.x, canvasEnd.x).toDouble(),
+          (start.y / 20).floorToDouble() * 20,
+          max(start.x, canvasEnd.x).toDouble(),
+          ((canvasEnd.y / 20).floorToDouble() + 1) * 20,
+        );
       });
+    } else if (pointerMode == _PianoRollPointerMode.PANNING) {
+      viewState.xOffset = viewState.xOffset + details.delta.dx / viewState.xScale;
+      viewState.yOffset = viewState.yOffset + details.delta.dy / viewState.yScale;
+
+      this.clampXY(constraints.maxHeight, constraints.maxWidth);
+      repaintNotifier.value++;
     }
       else if (pointerMode == _PianoRollPointerMode.SELECTING) {
       lastPointerEvent = details;
@@ -414,14 +477,45 @@ class _PianoRollState extends State<PianoRoll> {
     else if(pointerMode == _PianoRollPointerMode.PANNING) {
       // No special state to free
     }
-    else if(pointerMode == _PianoRollPointerMode.DRAGGING) {
+      else if(pointerMode == _PianoRollPointerMode.DRAGGING) {
       // finish dragging something!
       currentlyDraggingModule?.onDragEnd(details,_firstMouseDownPos!);
       currentlyDraggingModule = null;
       lastPointerEvent = null;
     }
+    else if(pointerMode == _PianoRollPointerMode.NOTE_CREATING) {
+      // finalize the ghost note
+      final ghost = _ghostNoteRect;
+      if (ghost != null && ghost.width > 2 / viewState.xScale) {
+        const double pixelsPerBeat = 500;
+        _createNoteAt(
+          ghost.center.dx,
+          ghost.top,
+          duration: ((ghost.width * widget.project.timeUnitsPerBeat) /
+                  pixelsPerBeat)
+              .round(),
+        );
+      }
+      setState(() {
+        _ghostNoteRect = null;
+        _noteCreateStartCanvas = null;
+      });
+    }
     else if(pointerMode == _PianoRollPointerMode.LMB_CLICK) {
-      // click!
+      // check if this was a click on empty grid (single click, no note under cursor)
+      final mousePos = Point(details.localPosition.dx, details.localPosition.dy);
+      bool hitNote = false;
+      for (final module in widget.modules) {
+        if (module.hitTest(mousePos)) { hitNote = true; break; }
+      }
+      if (!hitNote && _lastClickCount == 0 && widget.project.voices.isNotEmpty) {
+        final painter = PianoRollPainter(
+          widget.project, Theme.of(context), pianoKeysWidth,
+          viewState, null, null, widget.modules);
+        final canvasPos = painter.screenPosToCanvasPos(mousePos, false);
+        _createNoteAt(canvasPos.x.toDouble(), canvasPos.y.toDouble());
+      }
+
       if(widget.onClick != null) {
         widget.onClick!(controls,details,_lastClickCount + 1);
       }
@@ -430,10 +524,6 @@ class _PianoRollState extends State<PianoRoll> {
         module.onClick(details,_lastClickCount + 1);
       }
 
-      // Special logic for consecutive clicks:
-      // If the second mousedown event occurs within 300 milliseconds
-      // it increments a clickCount variable
-      // Otherwise, it is reset
       _lastClickTimeDecay?.cancel();
     
       _lastClickTimeDecay = new Timer(Duration(milliseconds: 300),() {
@@ -457,18 +547,19 @@ class _PianoRollState extends State<PianoRoll> {
 
       child: Row(mainAxisSize: MainAxisSize.max, children: [
         Expanded(child: LayoutBuilder(builder: (context, constraints) {
-          if ((xOffset == -1) && (yOffset == -1)) {
+          if (viewState.xOffset == 0 && viewState.yOffset == 0) {
             // first run: scroll to C#6
-            xOffset = 0;
-            yOffset = -PianoRollPainter.pitchToYAxisEx("C#", 6);
+            viewState.xOffset = 0;
+            viewState.yOffset = -PianoRollPainter.pitchToYAxisEx("C#", 6);
           }
 
           // Use the LayoutBuilder's constraints to ensure that the
           // scale/offsets are appropriate for our current window height
           this.clampXY(constraints.maxHeight, constraints.maxWidth);
 
-          var rectPainter = PianoRollPainter(widget.project, themeData,
-              pianoKeysWidth, xOffset, yOffset, xScale, yScale, selectionRect, curMousePos, widget.modules);
+          _painter = PianoRollPainter(widget.project, themeData,
+              pianoKeysWidth, viewState, selectionRect, curMousePos, widget.modules, _ghostNoteRect, repaintNotifier);
+          var rectPainter = _painter!;
 
           final controls = PianoRollControls();
           controls.painter = rectPainter;
@@ -532,21 +623,23 @@ class _PianoRollState extends State<PianoRoll> {
                               tooltip: "Zoom out vertically",
                               padding: EdgeInsets.all(6),
                               constraints: BoxConstraints(minWidth: 32, minHeight: 32),
-                              onPressed: () => setState(() {
-                                yScale = max(0.25, yScale - 0.25);
+                              onPressed: () {
+                                viewState.yScale = max(0.25, viewState.yScale - 0.25);
                                 clampXY(constraints.maxHeight, constraints.maxWidth);
-                              }),
+                                repaintNotifier.value++;
+                              },
                             ),
-                            Text("${(yScale * 100).round()}%", style: TextStyle(fontSize: 11)),
+                            Text("${(viewState.yScale * 100).round()}%", style: TextStyle(fontSize: 11)),
                             IconButton(
                               icon: const Icon(Icons.zoom_in, size: 18),
                               tooltip: "Zoom in vertically",
                               padding: EdgeInsets.all(6),
                               constraints: BoxConstraints(minWidth: 32, minHeight: 32),
-                              onPressed: () => setState(() {
-                                yScale = min(4.0, yScale + 0.25);
+                              onPressed: () {
+                                viewState.yScale = min(4.0, viewState.yScale + 0.25);
                                 clampXY(constraints.maxHeight, constraints.maxWidth);
-                              }),
+                                repaintNotifier.value++;
+                              },
                             ),
                             SizedBox(width: 4),
                             IconButton(
@@ -554,11 +647,12 @@ class _PianoRollState extends State<PianoRoll> {
                               tooltip: "Reset zoom",
                               padding: EdgeInsets.all(6),
                               constraints: BoxConstraints(minWidth: 32, minHeight: 32),
-                              onPressed: () => setState(() {
-                                xScale = 1;
-                                yScale = 1;
+                              onPressed: () {
+                                viewState.xScale = 1;
+                                viewState.yScale = 1;
                                 clampXY(constraints.maxHeight, constraints.maxWidth);
-                              }),
+                                repaintNotifier.value++;
+                              },
                             ),
                           ],
                         ),
@@ -575,19 +669,28 @@ class _PianoRollState extends State<PianoRoll> {
   }
 }
 
+class _PianoRollViewState {
+  double xOffset = 0;
+  double yOffset = 0;
+  double xScale = 1;
+  double yScale = 1;
+}
+
 class PianoRollPainter extends CustomPainter {
-  PianoRollPainter(this.project, this.themeData, this.pianoKeysWidth, this.xOffset, this.yOffset, this.xScale,
-      this.yScale, this.selectionRect, this.curMousePos, this.modules) : super();
+  PianoRollPainter(this.project, this.themeData, this.pianoKeysWidth, this.viewState, this.selectionRect, this.curMousePos, this.modules, [this.ghostNoteRect, Listenable? repaint]) : super(repaint: repaint);
   final MuonProjectController project;
   final ThemeData themeData;
   final double pianoKeysWidth;
-  final double xOffset;
-  final double yOffset;
-  final double xScale;
-  final double yScale;
+  final _PianoRollViewState viewState;
   final Rect? selectionRect;
+  final Rect? ghostNoteRect;
   final Point<num>? curMousePos;
   final List<PianoRollModule> modules;
+
+  double get xOffset => viewState.xOffset;
+  double get yOffset => viewState.yOffset;
+  double get xScale => viewState.xScale;
+  double get yScale => viewState.yScale;
 
   final double pixelsPerBeat = 500;
 
@@ -768,6 +871,12 @@ class PianoRollPainter extends CustomPainter {
     // Clip to viewable area
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
+    // background fill
+    final bgFill = Paint()..color = themeData.brightness == Brightness.light
+      ? Color(0xFFF8F6FC)
+      : Color(0xFF1E1E2E);
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgFill);
+
     // Save current state
     canvas.save();
 
@@ -776,8 +885,12 @@ class PianoRollPainter extends CustomPainter {
     noteCoordinateSystem(canvas);
 
     // draw pitch grid
-    Paint pitchGridDiv = Paint()..color = (themeData.brightness == Brightness.light ? Colors.grey[200] : Colors.grey[600])!;
-    Paint pitchGridOctaveDiv = Paint()..color = (themeData.brightness == Brightness.light ? Colors.grey[400] : Colors.white)!;
+    Paint pitchGridDiv = Paint()
+      ..color = (themeData.brightness == Brightness.light ? Colors.grey[200] : Colors.grey[600])!
+      ..strokeWidth = 0.5;
+    Paint pitchGridOctaveDiv = Paint()
+      ..color = (themeData.brightness == Brightness.light ? Colors.grey[400] : Colors.white)!
+      ..strokeWidth = 0.8;
     double firstVisibleKey = (yPos / 20).floorToDouble();
     int visibleKeys = ((size.height / yScale) / 20).floor();
     for (int i = 0; i <= visibleKeys; i++) {
@@ -795,9 +908,15 @@ class PianoRollPainter extends CustomPainter {
     }
 
     // draw time grid
-    Paint subBeatDiv = Paint()..color = (themeData.brightness == Brightness.light ? Colors.grey[200] : Colors.grey[800])!;
-    Paint beatDiv = Paint()..color = (themeData.brightness == Brightness.light ? Colors.grey : Colors.grey[600])!;
-    Paint measureDiv = Paint()..color = themeData.brightness == Brightness.light ? Colors.black : Colors.white;
+    Paint subBeatDiv = Paint()
+      ..color = (themeData.brightness == Brightness.light ? Colors.grey[200] : Colors.grey[800])!
+      ..strokeWidth = 0.5;
+    Paint beatDiv = Paint()
+      ..color = (themeData.brightness == Brightness.light ? Colors.grey : Colors.grey[600])!
+      ..strokeWidth = 0.7;
+    Paint measureDiv = Paint()
+      ..color = themeData.brightness == Brightness.light ? Colors.black : Colors.white
+      ..strokeWidth = 1.0;
     int beats = project.beatsPerMeasure;
 
     double beatDuration = pixelsPerBeat;
@@ -856,6 +975,21 @@ class PianoRollPainter extends CustomPainter {
       module.paint(canvas,size);
     }
 
+    // draw ghost note (note creation preview)
+    if (ghostNoteRect != null) {
+      final ghost = ghostNoteRect!;
+      final ghostRrect = RRect.fromRectAndRadius(ghost, Radius.circular(4));
+      final ghostPaint = Paint()
+        ..color = Colors.blue.withValues(alpha: 0.25)
+        ..style = PaintingStyle.fill;
+      final ghostBorder = Paint()
+        ..color = Colors.blue.withValues(alpha: 0.8)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1 / xScale;
+      canvas.drawRRect(ghostRrect, ghostPaint);
+      canvas.drawRRect(ghostRrect, ghostBorder);
+    }
+
     // set up y axis only offset
     canvas.restore();
 
@@ -865,25 +999,34 @@ class PianoRollPainter extends CustomPainter {
     // draw selection rect on untransformed canvas
     if(selectionRect != null) {
       final selRect = selectionRect!;
+      final selRrect = RRect.fromRectAndRadius(selRect, Radius.circular(6));
       final selPaintBorder = Paint()
-        ..color = Colors.blue.withValues(alpha: 0.75)
-        ..style = PaintingStyle.stroke;
+        ..color = Colors.blue.withValues(alpha: 0.7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
       final selPaint = Paint()
-        ..color = Colors.blue.withValues(alpha: 0.3)
+        ..color = Colors.blue.withValues(alpha: 0.12)
         ..style = PaintingStyle.fill;
-      selPaint.style = PaintingStyle.fill;
-      canvas.drawRect(selRect,selPaintBorder);
-      canvas.drawRect(selRect,selPaint);
+      canvas.drawRRect(selRrect, selPaintBorder);
+      canvas.drawRRect(selRrect, selPaint);
     }
 
     // set up piano keys scaling
     canvas.scale(1, yScale);
     canvas.translate(0, yOffset);
 
-    // draw shadow
+    // shadow to separate keys from grid
     var shadowPath = new Path();
     shadowPath.addRect(Rect.fromLTWH(0, 0, pianoKeysWidth, 1920));
     canvas.drawShadow(shadowPath, Colors.black, 10, false);
+
+    // right edge border
+    final keyBorder = Paint()
+      ..color = themeData.brightness == Brightness.light
+        ? Colors.grey.withValues(alpha: 0.4)
+        : Colors.grey.withValues(alpha: 0.3)
+      ..strokeWidth = 1;
+    canvas.drawLine(Offset(pianoKeysWidth, 0), Offset(pianoKeysWidth, 1920 * yScale), keyBorder);
 
     Paint whiteKeys = Paint()..color = themeData.brightness == Brightness.light ? Colors.white : Colors.grey[100]!;
     Paint blackKeys = Paint()..color = Colors.black;
@@ -925,23 +1068,28 @@ class PianoRollPainter extends CustomPainter {
     canvas.restore();
 
     // paint piano key labels without stretch
+    final labelFontSize = (12 * yScale).clamp(9.0, 16.0);
     keyIdx = 0;
     for (int octave = 8; octave > 0; octave--) {
       for (int noteID = 0; noteID < toDraw.length; noteID++) {
         var note = toDraw[noteID];
-        var labelPainter = new TextPainter(
-          text: new TextSpan(
-              style: new TextStyle(
-                  color: Colors.grey[600], fontSize: (12 * yScale)),
-              text: note + octave.toString()),
-          textAlign: TextAlign.right,
-          textDirection: TextDirection.ltr,
-        )..layout();
-        labelPainter.paint(
-            canvas,
-            new Offset(pianoKeysWidth - 26 * yScale,
-                ((keyIdx) * 20 + yOffset) * yScale + labelPainter.height / 10));
-
+        if (!note.endsWith("#")) {
+          var labelPainter = new TextPainter(
+            text: new TextSpan(
+                style: new TextStyle(
+                    color: themeData.brightness == Brightness.light
+                        ? Colors.grey[700]
+                        : Colors.grey[400],
+                    fontSize: labelFontSize),
+                text: note + octave.toString()),
+            textAlign: TextAlign.right,
+            textDirection: TextDirection.ltr,
+          )..layout();
+          labelPainter.paint(
+              canvas,
+              new Offset(6,
+                  ((keyIdx) * 20 + yOffset) * yScale + (20 * yScale - labelPainter.height) / 2));
+        }
         keyIdx++;
       }
     }

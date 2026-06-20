@@ -168,15 +168,17 @@ class MuonProjectController with WeakEqualityController {
   // MISCELLANEOUS METHODS
 
   /// Helper method to concatenate this project's filepath
-  /// with a given subtree path
+  /// with a given subtree path. Falls back to CWD for unsaved projects.
   String getProjectFilePath(String filePath) {
-    return p.absolute(projectDir + "/" + filePath);
+    final base = projectDir == "startup" ? Directory.current.path : projectDir;
+    return p.absolute(base + "/" + filePath);
   }
 
   /// Helper method to concatenate this project's filepath
-  /// with a given subtree path with quotes
+  /// with a given subtree path with quotes. Falls back to CWD for unsaved projects.
   String getQuotedProjectFilePath(String filePath) {
-    return '"' + p.absolute(projectDir + "/" + filePath) + '"';
+    final base = projectDir == "startup" ? Directory.current.path : projectDir;
+    return '"' + p.absolute(base + "/" + filePath) + '"';
   }
 
   /// Helper method to add a voice. Also updates the voice's project reference.

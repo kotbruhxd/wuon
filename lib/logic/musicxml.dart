@@ -625,34 +625,6 @@ class MusicXMLUtils {
     }
     regenerateDivisionMapping();
 
-    _NoteResolution resolveNote(double beats) {
-      var resolution = _NoteResolution();
-      if(divisionToNoteType.containsKey(beats)) {
-        resolution.beats = beats;
-        resolution.dots = 0;
-        resolution.noteType = divisionToNoteType[beats]!;
-      }
-      else {
-        if(divisionToDottedNoteType.containsKey(beats)) {
-          resolution.beats = beats;
-          resolution.dots = 1;
-          resolution.noteType = divisionToDottedNoteType[beats]!;
-        }
-        else if(divisionToDoubleDottedNoteType.containsKey(beats)) {
-          resolution.beats = beats;
-          resolution.dots = 2;
-          resolution.noteType = divisionToDoubleDottedNoteType[beats]!;
-        }
-        else if(divisionToTripleDottedNoteType.containsKey(beats)) {
-          resolution.beats = beats;
-          resolution.dots = 3;
-          resolution.noteType = divisionToTripleDottedNoteType[beats]!;
-        }
-      }
-      
-      return resolution;
-    }
-
     _NoteResolution? resolveNoteFallback(double beats) {
       var beatList = divisionToNoteType.keys.toList();
       beatList.sort((a,b) => b.compareTo(a));
@@ -701,7 +673,48 @@ class MusicXMLUtils {
         }
       }
 
-      return null;
+      _NoteResolution fallback = _NoteResolution();
+      fallback.beats = 0.5;
+      fallback.dots = 0;
+      fallback.noteType = "eighth";
+      return fallback;
+    }
+
+    _NoteResolution resolveNote(double beats) {
+      var resolution = _NoteResolution();
+      if(divisionToNoteType.containsKey(beats)) {
+        resolution.beats = beats;
+        resolution.dots = 0;
+        resolution.noteType = divisionToNoteType[beats]!;
+      }
+      else if(divisionToDottedNoteType.containsKey(beats)) {
+        resolution.beats = beats;
+        resolution.dots = 1;
+        resolution.noteType = divisionToDottedNoteType[beats]!;
+      }
+      else if(divisionToDoubleDottedNoteType.containsKey(beats)) {
+        resolution.beats = beats;
+        resolution.dots = 2;
+        resolution.noteType = divisionToDoubleDottedNoteType[beats]!;
+      }
+      else if(divisionToTripleDottedNoteType.containsKey(beats)) {
+        resolution.beats = beats;
+        resolution.dots = 3;
+        resolution.noteType = divisionToTripleDottedNoteType[beats]!;
+      }
+      else {
+        var fallback = resolveNoteFallback(beats);
+        if(fallback != null) {
+          resolution = fallback;
+        }
+        else {
+          resolution.beats = beats;
+          resolution.dots = 0;
+          resolution.noteType = "eighth";
+        }
+      }
+      
+      return resolution;
     }
 
     _NoteResolution? resolveNoteFallbackDiscrete(int beats) {

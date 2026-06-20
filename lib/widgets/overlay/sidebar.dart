@@ -12,6 +12,7 @@ class MuonSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
     return Container(
+      width: 300,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -28,13 +29,12 @@ class MuonSidebar extends StatelessWidget {
           ),
         ],
       ),
-      width: 400,
       decoration: BoxDecoration(
         color: themeData.scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 7,
+            blurRadius: 1,
             spreadRadius: 1,
           ),
         ]

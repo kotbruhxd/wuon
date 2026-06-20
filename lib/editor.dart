@@ -20,6 +20,7 @@ import 'package:wuon/widgets/dialogs/welcome.dart';
 import 'package:wuon/widgets/overlay/appbar.dart';
 import 'package:wuon/widgets/overlay/sidebar.dart';
 import "package:path/path.dart" as p;
+import 'package:synaps_flutter/synaps_flutter.dart';
 
 final currentProject = MuonProjectController.defaultProject();
 
@@ -280,16 +281,8 @@ class _MuonEditorState extends State<MuonEditor> {
   void _onFirstRun(BuildContext context) {
     final settings = getMuonSettings();
 
-    if(settings.neutrinoDir != "") {
-      // We have already performed first time set-up!
-
-      Timer(Duration(milliseconds: 1),() {
-        MuonEditor.showWelcomeScreen(context);
-      });
-    }
-    else {
+    if(settings.neutrinoDir == "") {
       // no neutrino library, so let's perform first time set-up!
-
       Timer(Duration(milliseconds: 1),() {
         MuonEditor.performFirstTimeSetup(context);
       });
@@ -307,59 +300,72 @@ class _MuonEditorState extends State<MuonEditor> {
 
     return Scaffold(
       appBar: MuonAppBar(),
-      // drawer: Drawer(
-      //   child: ListView(
-      //     children: [
-      //       DrawerHeader(
-      //         child: Text("Options"),
-      //       )
-      //     ],
-      //   )
-      // ),
-      body: Row(
-        textDirection: TextDirection.rtl,
+      body: Column(
         children: [
+          Rx(() => currentProject.internalStatus == "compiling"
+            ? Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                color: Colors.amber.withValues(alpha: 0.15),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16, height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 12),
+                    Text("Rendering...", style: TextStyle(fontSize: 13)),
+                    Spacer(),
+                    Text("compiling voices", style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  ],
+                ),
+              )
+            : SizedBox.shrink()),
           Expanded(
-            child: PianoRoll(
-              project: currentProject,
-              modules: [
-                PianoRollNotesModule(selectedNotes: currentProject.selectedNotes),
-                PianoRollWAILAModule(),
-              ],
-              onKey: (pianoRoll,keyEvent) {
-                if(keyEvent.isControlPressed) {
-                  if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyS)) {
-                    currentProject.save();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: new Text("Saved project!"),
-                        duration: new Duration(seconds: 2),
-                      )
-                    );
-                  }
-                  else if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyZ)) {
-                    // undo
-                    currentProject.undoAction();
-                  }
-                  else if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyY)) {
-                    // redo
-                    currentProject.redoAction();
-                  }
-                }
-                
-                if(keyEvent.isKeyPressed(LogicalKeyboardKey.space)) {
-                  if(currentProject.internalStatus == "playing") {
-                    MuonEditor.stopAudio();
-                  }
-                  else {
-                    MuonEditor.playAudio(context);
-                  }
-                }
-              },
-            )
+            child: Row(
+              textDirection: TextDirection.rtl,
+              children: [
+                Expanded(
+                  child: PianoRoll(
+                    project: currentProject,
+                    modules: [
+                      PianoRollNotesModule(selectedNotes: currentProject.selectedNotes),
+                      PianoRollWAILAModule(),
+                    ],
+                    onKey: (pianoRoll,keyEvent) {
+                      if(keyEvent.isControlPressed) {
+                        if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyS)) {
+                          currentProject.save();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: new Text("Saved project!"),
+                              duration: new Duration(seconds: 2),
+                            )
+                          );
+                        }
+                        else if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyZ)) {
+                          currentProject.undoAction();
+                        }
+                        else if(keyEvent.isKeyPressed(LogicalKeyboardKey.keyY)) {
+                          currentProject.redoAction();
+                        }
+                      }
+
+                      if(keyEvent.isKeyPressed(LogicalKeyboardKey.space)) {
+                        if(currentProject.internalStatus == "playing") {
+                          MuonEditor.stopAudio();
+                        }
+                        else {
+                          MuonEditor.playAudio(context);
+                        }
+                      }
+                    },
+                  )
+                ),
+                MuonSidebar(),
+              ]
+            ),
           ),
-          MuonSidebar(),
-        ]
+        ],
       ),
     );
   }

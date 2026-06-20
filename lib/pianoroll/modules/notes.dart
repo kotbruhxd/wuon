@@ -129,24 +129,22 @@ class PianoRollNotesModule extends PianoRollModule {
 
   void onClick(PointerEvent mouseEvent, int numClicks) {
     final mousePos = Point(mouseEvent.localPosition.dx,mouseEvent.localPosition.dy);
-    // onClick
     final noteAtCursor = getNoteAtScreenPos(mousePos);
 
     if(!RawKeyboard.instance.physicalKeysPressed.contains(PhysicalKeyboardKey.shiftLeft)) {
       selectedNotes.updateAll((note,isActive) => false);
     }
 
-    if(numClicks == 1) {
-      if(noteAtCursor != null) {
+    if (numClicks == 1) {
+      if (noteAtCursor != null) {
+        // select/deselect note
         selectedNotes.putIfAbsent(noteAtCursor, () => false);
         selectedNotes[noteAtCursor] = !(selectedNotes[noteAtCursor] ?? false);
       }
-      else {
-        project.playheadTime = (painter.getBeatNumAtCursor(mousePos.x) * project.timeUnitsPerBeat).roundToDouble() / project.timeUnitsPerBeat;
-      }
+      // single-click on empty: note creation is handled by NOTE_CREATING drag in pianoroll.dart
     }
-    else if(numClicks == 2) {
-      if(noteAtCursor != null) {
+    else if (numClicks == 2) {
+      if (noteAtCursor != null) {
         selectedNotes[noteAtCursor] = true;
 
         // edit note lyrics
@@ -164,8 +162,8 @@ class PianoRollNotesModule extends PianoRollModule {
         showMenu<void>(
           context: context,
           position: RelativeRect.fromRect(
-              mouseEvent.position & Size(40, 40), // smaller rect, the touch area
-              Offset.zero & overlay.size // Bigger rect, the entire screen
+              mouseEvent.position & Size(40, 40),
+              Offset.zero & overlay.size
             ),
           items: [
             PopupMenuItem(
@@ -198,7 +196,6 @@ class PianoRollNotesModule extends PianoRollModule {
                   }
 
                   if(hiraganaList.length == 0) {
-                    // short cut: just remove the lyrics to the current note
                     if(!editHistory.containsKey(curNotePos)) {
                       editHistory[curNotePos] = noteAtCursor.lyric;
                     }
@@ -225,17 +222,8 @@ class PianoRollNotesModule extends PianoRollModule {
         });
       }
       else {
-        if(project.voices.length > project.currentVoiceID) {
-          MuonVoiceController voice = project.voices[project.currentVoiceID];
-          var note = MuonNoteController().ctx();
-          var pitch = painter.getPitchAtCursor(mousePos.y);
-          note.octave = pitch.octave;
-          note.note = pitch.note;
-          note.startAtTime = (painter.getBeatNumAtCursor(mousePos.x) * project.timeUnitsPerBeat).floor();
-          note.startAtTime = floorToModulus(note.startAtTime, project.timeUnitsPerSubdivision);
-          note.duration = project.timeUnitsPerSubdivision;
-          voice.addNote(note);
-        }
+        // double-click on empty: move playhead
+        project.playheadTime = (painter.getBeatNumAtCursor(mousePos.x) * project.timeUnitsPerBeat).roundToDouble() / project.timeUnitsPerBeat;
       }
     }
   }
@@ -552,33 +540,45 @@ class PianoRollNotesModule extends PianoRollModule {
     final pixelsPerBeat = painter.pixelsPerBeat;
     final xScale = painter.xScale;
     final yScale = painter.yScale;
+    final cornerRadius = Radius.circular(4);
 
     for (final voice in project.voices) {
       final noteColor = voice.color as Color;
 
       for (final note in voice.notes) {
         final noteRect = getNoteRect(note);
+        final rrect = RRect.fromRectAndRadius(noteRect, cornerRadius);
 
-        if (selectedNotes.containsKey(note) && (selectedNotes[note] == true)) {
-          final borderThickness = 10.0;
+        final isSelected = selectedNotes.containsKey(note) && (selectedNotes[note] == true);
+
+        if (isSelected) {
+          final borderThickness = 8.0;
+          final innerRect = painter.deflateScaled(noteRect, borderThickness);
+          final innerRrect = RRect.fromRectAndRadius(innerRect, cornerRadius);
+
+          // selection glow
           if (themeData.brightness == Brightness.dark) {
-            canvas.drawRect(noteRect, Paint()..color = Colors.white);
-            canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withValues(alpha: 0.75));
+            canvas.drawRRect(rrect, Paint()..color = Colors.white);
           } else {
-            canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withValues(alpha: 0.5));
+            canvas.drawRRect(rrect, Paint()..color = noteColor.withValues(alpha: 0.4));
           }
 
-          canvas.drawRect(painter.deflateScaled(noteRect, borderThickness),
-              Paint()..color = noteColor);
+          // note body
+          canvas.drawRRect(innerRrect, Paint()..color = noteColor);
         } else {
+          // subtle shadow
+          final shadowRect = noteRect.shift(Offset(2, 2));
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(shadowRect, cornerRadius),
+            Paint()..color = Colors.black.withValues(alpha: 0.15),
+          );
+
           if (themeData.brightness == Brightness.light) {
-            canvas.drawRect(noteRect, Paint()..color = noteColor);
+            canvas.drawRRect(rrect, Paint()..color = noteColor);
           } else {
-            canvas.drawRect(noteRect, Paint()..color = Colors.black);
-            canvas.drawRect(
-                noteRect, Paint()..color = noteColor.withValues(alpha: 0.95));
+            canvas.drawRRect(rrect, Paint()..color = Colors.black);
+            canvas.drawRRect(
+                rrect, Paint()..color = noteColor.withValues(alpha: 0.95));
           }
         }
       }
