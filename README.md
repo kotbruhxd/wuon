@@ -38,14 +38,21 @@ Binary: `build/linux/x64/release/bundle/wuon`
 - **piano roll** — add, move, resize, delete notes; click and drag
 - **scroll** — wheel scrolls horizontally (timeline), shift+wheel scrolls vertically (pitch)
 - **zoom** — ctrl+wheel zooms vertically, ctrl+shift+wheel zooms horizontally; zoom overlay in bottom-left corner
-- **play** — compiles all voices automatically, then plays from playhead position
+- **pitch envelope editor** — per-note pitch bend curve with draggable control points (double-click to delete, drag on line to create); smooth Catmull-Rom spline interpolation, continuous across notes
+- **vibrato** — per-note sinusoidal vibrato with configurable depth, frequency and attack; preset dropdown (Light/Medium/Wide/Fast/Slow)
+- **note properties** — double-click a note to open a dedicated dialog with lyric, tune, vibrato controls
+- **per-note tuning** — semitone offset (−12…+12) per note, applied during NEUTRINO rendering
+- **per-voice tuning** — style shift and transpose with ± buttons in the sidebar
+- **play** — compiles all voices (sequential, mixed into one WAV), then plays from playhead position
 - **model switching** — change voice model and it re-renders on next play
 - **wav export** — exports all voice WAVs to a directory via the More menu
 - **gpu acceleration** — CUDA auto-detected when available
 - **midi import** — imports standard MIDI files as new voices
 - **projects** — save/load JSON project files
+- **resizable sidebar** — drag handle on right edge (180–500 px range)
+- **adaptive piano keys** — width adjusts to viewport (100–220 px)
 - **themes** — dark/light mode toggle
-- **controls** — space (play/stop), ctrl+s (save), ctrl+z (undo), ctrl+y (redo)
+- **controls** — space (play/stop), ctrl+s (save), ctrl+z (undo), ctrl+y (redo), del (delete selected notes)
 
 ## requirements
 
@@ -74,8 +81,8 @@ NEUTRINO/
 lib/
 ├── actions/        undo/redo actions
 ├── controllers/    reactive state (wsynaps)
-├── logic/          helpers, musicxml, japanese text
-├── pianoroll/      piano roll widget + modules
+├── logic/          helpers, musicxml, japanese text, wav mixer
+├── pianoroll/      piano roll widget + modules (notes, pitch, waila)
 ├── serializable/   data models (json)
 └── widgets/        appbar, sidebar, dialogs
 ```

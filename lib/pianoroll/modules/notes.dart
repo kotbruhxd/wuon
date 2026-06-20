@@ -11,6 +11,7 @@ import 'package:wuon/helpers.dart';
 import 'package:wuon/logic/japanese.dart';
 import 'package:wuon/pianoroll/pianoroll.dart';
 import 'package:wuon/serializable/muon.dart';
+import 'package:wuon/widgets/dialogs/noteproperties.dart';
 import 'package:synaps_flutter/synaps_flutter.dart';
 
 int _toAbsoluteSemitones(String note, int octave) {
@@ -147,79 +148,13 @@ class PianoRollNotesModule extends PianoRollModule {
       if (noteAtCursor != null) {
         selectedNotes[noteAtCursor] = true;
 
-        // edit note lyrics
-        final RenderBox overlay = Overlay.of(context).context.findRenderObject()! as RenderBox;
-
-        final initialLyricValue = noteAtCursor.lyric;
-        final textController = TextEditingController(text: initialLyricValue);
-        textController.selection = TextSelection(baseOffset: 0, extentOffset: initialLyricValue.length);
-
-        final editHistory = Map<int,String>();
-
-        String lastInput = "";
-        final newNoteLyrics = <MuonNoteController,String>{};
-
-        showMenu<void>(
+        showDialog<void>(
           context: context,
-          position: RelativeRect.fromRect(
-              mouseEvent.position & Size(40, 40),
-              Offset.zero & overlay.size
-            ),
-          items: [
-            PopupMenuItem(
-              child: TextField(
-                controller: textController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: "Lyrics",
-                ),
-                autofocus: true,
-                
-                onChanged: (String text) {
-                  final hiraganaList = JapaneseUTF8.alphabetToHiragana(text);
-
-                  noteAtCursor.voice.sortNotesByTime();
-                  lastInput = hiraganaList.join("");
-
-                  newNoteLyrics.clear();
-
-                  final curNotePos = noteAtCursor.voice.notes.indexOf(noteAtCursor);
-                  for(int i=curNotePos;i < noteAtCursor.voice.notes.length;i++) {
-                    if((i - curNotePos) < hiraganaList.length) {
-                      editHistory.putIfAbsent(i, () => noteAtCursor.voice.notes[i].lyric);
-                      noteAtCursor.voice.notes[i].lyric = hiraganaList[i - curNotePos];
-                      newNoteLyrics[noteAtCursor.voice.notes[i]] = hiraganaList[i - curNotePos];
-                    }
-                    else if(editHistory.containsKey(i)) {
-                      noteAtCursor.voice.notes[i].lyric = editHistory[i]!;
-                    }
-                  }
-
-                  if(hiraganaList.length == 0) {
-                    if(!editHistory.containsKey(curNotePos)) {
-                      editHistory[curNotePos] = noteAtCursor.lyric;
-                    }
-                    noteAtCursor.lyric = "";
-                  }
-                },
-              ),
-            ),
-          ],
-          elevation: 8.0,
-        ).then((_) {
-          final originalNoteLyrics = <MuonNoteController,String>{};
-
-          for(final editedNote in newNoteLyrics.keys) {
-            final notePos = noteAtCursor.voice.notes.indexOf(editedNote);
-            originalNoteLyrics[editedNote] = editHistory[notePos] ?? newNoteLyrics[editedNote] ?? "";
-          }
-
-          final action = RenameNoteAction(newNoteLyrics, originalNoteLyrics, lastInput);
-
-          if(newNoteLyrics.isNotEmpty) {
-            project.addAction(action);
-          }
-        });
+          builder: (_) => NotePropertiesDialog(
+            note: noteAtCursor,
+            project: widget.project,
+          ),
+        );
       }
       else {
         // double-click on empty: move playhead
@@ -603,6 +538,26 @@ class PianoRollNotesModule extends PianoRollModule {
             ),
             20,
             lyricSpan,
+          );
+        }
+        if (note.tune != 0) {
+          final tuneLabel = "${note.tune >= 0 ? "+" : ""}${note.tune}";
+          TextSpan tuneSpan = new TextSpan(
+              style: new TextStyle(
+                  color: themeData.brightness == Brightness.light
+                      ? Colors.grey[500]
+                      : Colors.grey[500],
+                  fontSize: 10),
+              text: tuneLabel);
+          painter.drawTextAt(
+            canvas,
+            Offset(
+              note.startAtTime * pixelsPerBeat / project.timeUnitsPerBeat +
+                  10 / xScale,
+              PianoRollPainter.pitchToYAxis(note) - 12 / yScale,
+            ),
+            12,
+            tuneSpan,
           );
         }
       }

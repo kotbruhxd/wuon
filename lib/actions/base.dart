@@ -13,6 +13,7 @@ part 'pastenote.dart';
 part 'removevoice.dart';
 part 'renamenote.dart';
 part 'retimenote.dart';
+part 'settune.dart';
 
 sealed class MuonAction {
   String get title;

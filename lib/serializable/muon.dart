@@ -18,8 +18,34 @@ class MuonNote {
   late int startAtTime;
   late int duration;
 
+  // per-note tuning (semitones, -12 to +12)
+  int tune = 0;
+
+  // pitch envelope: list of (offset from note start in ticks, cents) pairs
+  List<PitchPoint> pitchPoints = [];
+
+  // vibrato
+  bool vibratoEnabled = false;
+  double vibratoDepth = 25;
+  double vibratoFrequency = 5.5;
+  double vibratoAttack = 0.1;
+
   factory MuonNote.fromJson(Map<String, dynamic> json) => _$MuonNoteFromJson(json);
   Map<String, dynamic> toJson() => _$MuonNoteToJson(this);
+}
+
+@JsonSerializable()
+class PitchPoint {
+  PitchPoint(this.offset, this.cents);
+
+  /// Offset from note start in project time units
+  late int offset;
+
+  /// Pitch offset in cents (100 = 1 semitone)
+  late double cents;
+
+  factory PitchPoint.fromJson(Map<String, dynamic> json) => _$PitchPointFromJson(json);
+  Map<String, dynamic> toJson() => _$PitchPointToJson(this);
 }
 
 @JsonSerializable()
@@ -32,6 +58,10 @@ class MuonVoice {
   // voice metadata
   late String modelName;
   bool randomiseTiming = false;
+
+  // tuning (semitones)
+  int tune = 0;
+  int transpose = 0;
 
   // notes
   List<MuonNote> notes = [];

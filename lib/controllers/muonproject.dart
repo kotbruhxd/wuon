@@ -287,41 +287,6 @@ class MuonProjectController with WeakEqualityController {
 
     out.projectDir = "startup";
 
-    final baseVoice = MuonVoiceController().ctx();
-    baseVoice.addNoteInternal(
-      MuonNoteController().ctx()
-        ..startAtTime = 0
-        ..duration = 1
-        ..note = "C"
-        ..octave = 4
-        ..lyric = "ら"
-    );
-    baseVoice.addNoteInternal(
-      MuonNoteController().ctx()
-        ..startAtTime = 1
-        ..duration = 1
-        ..note = "D"
-        ..octave = 4
-        ..lyric = "ら"
-    );
-    baseVoice.addNoteInternal(
-      MuonNoteController().ctx()
-        ..startAtTime = 2
-        ..duration = 1
-        ..note = "E"
-        ..octave = 4
-        ..lyric = "ら"
-    );
-    baseVoice.addNoteInternal(
-      MuonNoteController().ctx()
-        ..startAtTime = 3
-        ..duration = 1
-        ..note = "F"
-        ..octave = 4
-        ..lyric = "ら"
-    );
-    out.addVoiceInternal(baseVoice);
-
     out.setSubdivision(4);
 
     return out;
@@ -558,11 +523,22 @@ class MuonProjectController with WeakEqualityController {
 
       noteEvent.voice = 1;
       noteEvent.duration = note.duration.toDouble();
-      noteEvent.lyric = note.lyric;
+      noteEvent.lyric = note.lyric.isEmpty ? "あ" : note.lyric;
 
       var pitch = MusicXMLPitch();
-      pitch.note = note.note;
-      pitch.octave = note.octave;
+      if (note.tune != 0) {
+        // apply per-note tuning by shifting the pitch
+        const midiNotes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+        final currentNoteID = midiNotes.indexOf(note.note);
+        final tuneDelta = note.tune;
+        final deltaOctave = ((tuneDelta + currentNoteID) / 12).floor();
+        final semitones = tuneDelta - deltaOctave * 12;
+        pitch.note = midiNotes[currentNoteID + semitones];
+        pitch.octave = note.octave + deltaOctave;
+      } else {
+        pitch.note = note.note;
+        pitch.octave = note.octave;
+      }
       noteEvent.pitch = pitch;
 
       lastNoteEndTime = note.startAtTime + note.duration;

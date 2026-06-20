@@ -30,6 +30,19 @@ class MuonNoteController with WeakEqualityController {
   @Observable()
   int duration = 0;
 
+  /// Per-note pitch bend in semitones (-12 to +12)
+  @Observable()
+  int tune = 0;
+
+  /// Pitch envelope control points
+  List<PitchPoint> pitchPoints = [];
+
+  /// Vibrato
+  bool vibratoEnabled = false;
+  double vibratoDepth = 25;
+  double vibratoFrequency = 5.5;
+  double vibratoAttack = 0.1;
+
   /// Adds `deltaSemitones` to this note
   /// 
   /// e.g. if this was a `C4`, adding `2` semitones gives you `D4`,
@@ -61,6 +74,12 @@ class MuonNoteController with WeakEqualityController {
     out.lyric = this.lyric;
     out.startAtTime = this.startAtTime;
     out.duration = this.duration;
+    out.tune = this.tune;
+    out.pitchPoints = this.pitchPoints;
+    out.vibratoEnabled = this.vibratoEnabled;
+    out.vibratoDepth = this.vibratoDepth;
+    out.vibratoFrequency = this.vibratoFrequency;
+    out.vibratoAttack = this.vibratoAttack;
     return out;
   }
 
@@ -71,6 +90,12 @@ class MuonNoteController with WeakEqualityController {
     out.lyric = obj.lyric;
     out.startAtTime = obj.startAtTime;
     out.duration = obj.duration;
+    out.tune = obj.tune;
+    out.pitchPoints = obj.pitchPoints;
+    out.vibratoEnabled = obj.vibratoEnabled;
+    out.vibratoDepth = obj.vibratoDepth;
+    out.vibratoFrequency = obj.vibratoFrequency;
+    out.vibratoAttack = obj.vibratoAttack;
     return out;
   }
 }

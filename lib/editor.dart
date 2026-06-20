@@ -11,6 +11,7 @@ import "package:wuon/controllers/muonproject.dart";
 import "package:wuon/controllers/muonvoice.dart";
 import "package:wuon/logic/japanese.dart";
 import 'package:wuon/pianoroll/modules/notes.dart';
+import 'package:wuon/pianoroll/modules/pitch.dart';
 import 'package:wuon/pianoroll/modules/waila.dart';
 import "package:wuon/pianoroll/pianoroll.dart";
 import "package:wuon/serializable/settings.dart";
@@ -21,8 +22,14 @@ import 'package:wuon/widgets/overlay/appbar.dart';
 import 'package:wuon/widgets/overlay/sidebar.dart';
 import "package:path/path.dart" as p;
 import 'package:synaps_flutter/synaps_flutter.dart';
+import 'package:flutter_audio_desktop/flutter_audio_desktop.dart';
+import 'package:wuon/logic/wavmix.dart';
 
 final currentProject = MuonProjectController.defaultProject();
+
+/// Shared single audio player — wfad's native code uses a global ma_context
+/// that crashes when multiple players are created/destroyed.
+AudioPlayer? _sharedPlayer;
 
 class MuonEditor extends StatefulWidget {
   MuonEditor() : super();
@@ -115,13 +122,26 @@ class MuonEditor extends StatefulWidget {
   static Future<void> playAudio(BuildContext context) async {
     if(currentProject.internalStatus != "idle") {return;}
 
-    List<Future<void>> compileRes = [];
     currentProject.internalStatus = "compiling";
     for(final voice in currentProject.voices) {
-      compileRes.add(compileVoice(voice));
+      await compileVoice(voice);
     }
-    await Future.wait(compileRes);
     currentProject.internalStatus = "idle";
+
+    // Mix all voices into a single WAV, then play with one shared AudioPlayer
+    final mixedPath = mixVoiceWavs(currentProject);
+    if (mixedPath.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Theme.of(context).colorScheme.error,
+            content: Text("No audio files to play"),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
 
     final playPos = Duration(
       milliseconds: currentProject.getLabelMillisecondOffset() + 
@@ -134,41 +154,36 @@ class MuonEditor extends StatefulWidget {
         ).floor()
       );
 
-    List<Future<bool>> voiceRes = [];
-    for(final voice in currentProject.voices) {
-      voiceRes.add(_playVoiceInternal(voice,playPos, 1 / currentProject.voices.length));
-    }
+    await _sharedPlayer?.unload();
+    _sharedPlayer ??= AudioPlayer(id: 0);
 
-    final voiceRes2 = await Future.wait(voiceRes);
-
-    var errorShown = false;
-    for(final res in voiceRes2) {
-      if(!res) {
-        if(!errorShown) {
-          errorShown = true;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(backgroundColor: Theme.of(context).colorScheme.error,
-              content: new Text("Unable to play audio!"),
-              duration: new Duration(seconds: 5),
-            )
-          );
-        }
-      }
-      else {
-        currentProject.internalStatus = "playing";
+    try {
+      await _sharedPlayer!.load(AudioSource.fromFile(File(mixedPath)));
+      await _sharedPlayer!.setPosition(playPos);
+      await _sharedPlayer!.play();
+      currentProject.internalStatus = "playing";
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Theme.of(context).colorScheme.error,
+            content: Text("Unable to play audio!"),
+            duration: Duration(seconds: 5),
+          ),
+        );
       }
     }
   }
 
   static Future<void> compileVoice(MuonVoiceController voice) async {
-    if(voice.audioPlayer != null) {
-      await voice.audioPlayer?.unload();
-    }
-    
-    if(voice.hasChangedNoteData) {
+    if(voice.hasChangedNoteData && voice.notes.isNotEmpty) {
       voice.hasChangedNoteData = false;
-      await voice.makeLabels();
-      await voice.runNeutrino();
+      try {
+        await voice.makeLabels();
+        await voice.runNeutrino();
+      } catch (e) {
+        print("[wuon] Compilation error for voice ${voice.modelName}: $e");
+      }
     }
   }
 
@@ -198,31 +213,10 @@ class MuonEditor extends StatefulWidget {
     );
   }
 
-  static Future<bool> _playVoiceInternal(MuonVoiceController voice,Duration playPos,double volume) async {
-    if(voice.audioPlayer != null) {
-      await voice.audioPlayer?.unload();
-    }
-
-    final audioPlayer = await voice.getAudioPlayer(playPos);
-
-    if(audioPlayer != null) {
-      await audioPlayer.setVolume(volume);
-      await audioPlayer.setPosition(playPos);
-      await audioPlayer.play();
-      return true;
-    }
-
-    return false;
-  }
-
   /// Stops any currently playing audio, if there is any.
   /// Otherwise, brings the playhead to the start of the project.
   static Future<void> stopAudio() async {
-    for(final voice in currentProject.voices) {
-      if(voice.audioPlayer != null) {
-        await voice.audioPlayer?.unload();
-      }
-    }
+    await _sharedPlayer?.unload();
     if(currentProject.internalStatus == "playing") {
       currentProject.internalStatus = "idle";
     }
@@ -329,6 +323,7 @@ class _MuonEditorState extends State<MuonEditor> {
                     project: currentProject,
                     modules: [
                       PianoRollNotesModule(selectedNotes: currentProject.selectedNotes),
+                      PianoRollPitchModule(),
                       PianoRollWAILAModule(),
                     ],
                     onKey: (pianoRoll,keyEvent) {

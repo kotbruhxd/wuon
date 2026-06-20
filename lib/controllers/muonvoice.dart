@@ -27,6 +27,14 @@ class MuonVoiceController with WeakEqualityController {
   @Observable()
   bool randomiseTiming = false;
 
+  /// Style shift in semitones (-12 to +12)
+  @Observable()
+  int tune = 0;
+
+  /// Transpose in semitones (-12 to +12)
+  @Observable()
+  int transpose = 0;
+
   /// The list of all of the notes that this voice sings
   @Observable()
   List<MuonNoteController> notes = [];
@@ -157,7 +165,10 @@ class MuonVoiceController with WeakEqualityController {
         project.getProjectFilePath("audio/" + voiceFileName + ".wav"),
         MuonHelpers.getRawProgramPath("model/" + modelName + "/"),
         "-n","8",
-        "-k","0",
+        "-k", tune.toString(),
+        "-f", transpose.toString(),
+        "-s","48000",
+        "-b","16",
         "-m",
         "-t",
       ],
@@ -202,6 +213,8 @@ class MuonVoiceController with WeakEqualityController {
     out.project = project ?? this.project.toSerializable();
     out.modelName = this.modelName;
     out.randomiseTiming = this.randomiseTiming;
+    out.tune = this.tune;
+    out.transpose = this.transpose;
     for(final note in notes) {
       out.notes.add(note.toSerializable());
     }
@@ -213,6 +226,8 @@ class MuonVoiceController with WeakEqualityController {
     out.project = project ?? MuonProjectController.fromSerializable(obj.project);
     out.modelName = obj.modelName;
     out.randomiseTiming = obj.randomiseTiming;
+    out.tune = obj.tune;
+    out.transpose = obj.transpose;
     for(final note in obj.notes) {
       out.addNoteInternal(MuonNoteController.fromSerializable(note));
     }

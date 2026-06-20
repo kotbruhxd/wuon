@@ -44,6 +44,30 @@ class $MuonVoiceController extends MuonVoiceController
     synapsMarkVariableDirty(#randomiseTiming, value);
   }
 
+  @override
+  int get tune {
+    synapsMarkVariableRead(#tune);
+    return boxedValue.tune;
+  }
+
+  @override
+  set tune(int value) {
+    boxedValue.tune = value;
+    synapsMarkVariableDirty(#tune, value);
+  }
+
+  @override
+  int get transpose {
+    synapsMarkVariableRead(#transpose);
+    return boxedValue.transpose;
+  }
+
+  @override
+  set transpose(int value) {
+    boxedValue.transpose = value;
+    synapsMarkVariableDirty(#transpose, value);
+  }
+
   late SynapsList<MuonNoteController> _proxy_notes;
   @override
   SynapsList<MuonNoteController> get notes {

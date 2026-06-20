@@ -199,7 +199,7 @@ class _PianoRollState extends State<PianoRoll> {
     });
   }
 
-  double _cachedSongLength = 8.0;
+  double _cachedSongLength = 2400.0;
   bool _songLengthDirty = true;
 
   double _songLengthBeats() {
@@ -233,7 +233,8 @@ class _PianoRollState extends State<PianoRoll> {
 
     if (renderBoxWidth != null) {
       const double pixelsPerBeat = 500;
-      final songLen = max(8.0, _songLengthBeats() + 4);
+      final double twentyMinBeats = 2400; // 20 min at 120 BPM
+      final songLen = max(twentyMinBeats, _songLengthBeats() + 4);
       final maxX = songLen * pixelsPerBeat - renderBoxWidth / viewState.xScale;
       viewState.xOffset = min(4.0, max(-maxX, viewState.xOffset));
     } else {
@@ -265,12 +266,20 @@ class _PianoRollState extends State<PianoRoll> {
     final note = MuonNoteController().ctx();
     note.note = pitch;
     note.octave = octave.clamp(1, 8);
+    note.lyric = "あ";
     note.startAtTime = (canvasX / pixelsPerBeat *
             widget.project.timeUnitsPerBeat)
         .floor();
     note.startAtTime = floorToModulus(
         note.startAtTime, widget.project.timeUnitsPerSubdivision);
     note.duration = duration ?? widget.project.timeUnitsPerSubdivision;
+
+    final defDur = note.duration;
+    final subDiv = widget.project.timeUnitsPerSubdivision;
+    note.pitchPoints = [
+      PitchPoint(0, 0),
+      PitchPoint(defDur ~/ subDiv * subDiv, 0),
+    ];
 
     voice.addNote(note);
     widget.project.playheadTime = note.startAtTime / widget.project.timeUnitsPerBeat;
@@ -556,6 +565,9 @@ class _PianoRollState extends State<PianoRoll> {
           // Use the LayoutBuilder's constraints to ensure that the
           // scale/offsets are appropriate for our current window height
           this.clampXY(constraints.maxHeight, constraints.maxWidth);
+
+          pianoKeysWidth = constraints.maxWidth * 0.08;
+          pianoKeysWidth = pianoKeysWidth.clamp(100, 220);
 
           _painter = PianoRollPainter(widget.project, themeData,
               pianoKeysWidth, viewState, selectionRect, curMousePos, widget.modules, _ghostNoteRect, repaintNotifier);
