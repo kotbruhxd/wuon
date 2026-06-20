@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:wuon/actions/base.dart';
 import 'package:wuon/controllers/muonnote.dart';
 import 'package:wuon/controllers/muonproject.dart';
-import 'package:wuon/logic/japanese.dart';
 
 class NotePropertiesDialog extends StatefulWidget {
   final MuonNoteController note;
@@ -121,15 +120,6 @@ class _NotePropertiesDialogState extends State<NotePropertiesDialog> {
                   border: OutlineInputBorder(),
                   isDense: true,
                 ),
-                onChanged: (text) {
-                  final converted = JapaneseUTF8.alphabetToHiragana(text).join("");
-                  if (converted != text) {
-                    _lyricCtrl.value = TextEditingValue(
-                      text: converted,
-                      selection: TextSelection.collapsed(offset: converted.length),
-                    );
-                  }
-                },
               ),
               SizedBox(height: 16),
 

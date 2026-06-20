@@ -43,7 +43,7 @@
                 <type>16th</type>
                 <voice>1</voice>
                 <lyric>
-                    <text>mi</text>
+                    <text>あ</text>
                 </lyric>
                 <pitch>
                     <step>C</step>
@@ -55,7 +55,19 @@
                 <type>16th</type>
                 <voice>1</voice>
                 <lyric>
-                    <text>ku</text>
+                    <text>う</text>
+                </lyric>
+                <pitch>
+                    <step>F</step>
+                    <octave>5</octave>
+                </pitch>
+            </note>
+            <note>
+                <duration>1</duration>
+                <type>16th</type>
+                <voice>1</voice>
+                <lyric>
+                    <text>あ</text>
                 </lyric>
                 <pitch>
                     <step>C</step>
@@ -63,8 +75,20 @@
                 </pitch>
             </note>
             <note>
+                <duration>1</duration>
+                <type>16th</type>
+                <voice>1</voice>
+                <lyric>
+                    <text>あ</text>
+                </lyric>
+                <pitch>
+                    <step>G</step>
+                    <octave>5</octave>
+                </pitch>
+            </note>
+            <note>
                 <rest />
-                <duration>14</duration>
+                <duration>12</duration>
                 <type>half</type>
                 <dot />
                 <voice>1</voice>
@@ -77,8 +101,8 @@
         <measure number="3">
             <note>
                 <rest />
-                <duration>2</duration>
-                <type>eighth</type>
+                <duration>4</duration>
+                <type>quarter</type>
                 <voice>1</voice>
                 <tie type="stop" />
                 <notations>
